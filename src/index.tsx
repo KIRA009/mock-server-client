@@ -1,12 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
+import Root from './containers/Root'
 import * as serviceWorker from './serviceWorker';
+import {configuredStore, history} from './store'
+
+const store = configuredStore();
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <Root store={store} history={history}/>
   </React.StrictMode>,
   document.getElementById('root')
 );
