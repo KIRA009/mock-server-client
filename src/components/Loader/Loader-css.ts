@@ -1,11 +1,10 @@
-import { makeStyles } from '@material-ui/core';
+import {makeStyles} from '@material-ui/core';
 
-
-const styles = makeStyles(_ => ({
+const styles = makeStyles((_) => ({
     root: {
         display: 'block',
-        margin: 'auto'
+        margin: 'auto',
     },
-}))
+}));
 
 export default styles;

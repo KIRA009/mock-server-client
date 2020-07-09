@@ -1,21 +1,20 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { AppThunk, RootState } from '../store';
-
+import {createSlice} from '@reduxjs/toolkit';
+import {AppThunk, RootState} from '../store';
 
 interface initialState {
     baseEndpoints: string[];
     loading: boolean;
-    error: string,
+    error: string;
     addBaseEndpointLoading: boolean;
 }
 interface addBaseEndpointPayload {
     type: string;
-    payload: string
+    payload: string;
 }
 
 interface initiateBaseEndpointPayload {
     type: string;
-    payload: string[]
+    payload: string[];
 }
 
 const baseEndpoints = createSlice({
@@ -24,11 +23,10 @@ const baseEndpoints = createSlice({
         baseEndpoints: [],
         loading: false,
         error: '',
-        addBaseEndpointLoading: false
+        addBaseEndpointLoading: false,
     },
     reducers: {
         startLoading: (state: initialState, _?) => {
-            console.log(state)
             state.loading = true;
         },
         endLoading: (state: initialState, _?) => {
@@ -45,14 +43,18 @@ const baseEndpoints = createSlice({
         },
         _addBaseEndpoint: (state: initialState, action: addBaseEndpointPayload) => {
             if (state.baseEndpoints.indexOf(action.payload) === -1) {
-                state.baseEndpoints.push(action.payload)
+                state.baseEndpoints.push(action.payload);
             }
-        }
+        },
     },
 });
 
 export const {
-    initiateBaseEndPoints, startLoading, endLoading, startAddEndpointLoading, endAddEndpointLoading
+    initiateBaseEndPoints,
+    startLoading,
+    endLoading,
+    startAddEndpointLoading,
+    endAddEndpointLoading,
 } = baseEndpoints.actions;
 
 export default baseEndpoints.reducer;
@@ -60,17 +62,17 @@ export default baseEndpoints.reducer;
 export const fillBaseEndpoints = (): AppThunk => (dispatch) => {
     dispatch(startLoading(null));
     setTimeout(() => {
-        dispatch(initiateBaseEndPoints([]))
+        dispatch(initiateBaseEndPoints(['/pro']));
         dispatch(endLoading(null));
-    }, 2000)
-}
+    }, 2000);
+};
 
-export const addBaseEndpoint = (payload: string): AppThunk => dispatch => {
+export const addBaseEndpoint = (payload: string): AppThunk => (dispatch) => {
     dispatch(baseEndpoints.actions.startAddEndpointLoading(null));
     setTimeout(() => {
         dispatch(baseEndpoints.actions._addBaseEndpoint(payload));
         dispatch(endAddEndpointLoading(null));
-    }, 2000)
-}
+    }, 2000);
+};
 
 export const getBaseEndPoints = (state: RootState): initialState => state.baseEndpoints;

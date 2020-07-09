@@ -1,7 +1,7 @@
-import React, {useEffect} from 'react'
-import {useSelector, useDispatch} from 'react-redux'
-import {getNotifs, readNotif} from '../../reducers/notifications'
-import {useSnackbar} from 'notistack'
+import React, {useEffect} from 'react';
+import {useSelector, useDispatch} from 'react-redux';
+import {getNotifs, readNotif} from '../../reducers/notifications';
+import {useSnackbar} from 'notistack';
 
 export const Notification = () => {
     const notifications = useSelector(getNotifs);
@@ -11,10 +11,10 @@ export const Notification = () => {
         for (let notif of notifications) {
             enqueueSnackbar(Date.now(), {
                 variant: notif.variant,
-                autoHideDuration: 2000
-            })
+                autoHideDuration: 2000,
+            });
             dispatch(readNotif(notif.id));
         }
-    }, [notifications, enqueueSnackbar, dispatch])
+    }, [notifications, enqueueSnackbar, dispatch]);
     return <></>;
-}
+};

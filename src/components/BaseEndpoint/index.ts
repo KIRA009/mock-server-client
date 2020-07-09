@@ -1,1 +1,1 @@
-export { BaseEndpoint } from './BaseEndpoint'
+export {BaseEndpoint} from './BaseEndpoint';
