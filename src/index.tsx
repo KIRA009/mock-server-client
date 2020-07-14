@@ -5,7 +5,7 @@ import Root from './containers/Root';
 import * as serviceWorker from './serviceWorker';
 import {configuredStore, history} from './store';
 
-const store = configuredStore();
+export const store = configuredStore();
 
 ReactDOM.render(
     <React.StrictMode>

@@ -1,7 +1,7 @@
 import React from 'react';
 import {CircularProgress} from '@material-ui/core';
 
-import styles from './Loader-css';
+import styles from './styles';
 
 export const Loader = () => {
     const classes = styles();

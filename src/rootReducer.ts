@@ -5,6 +5,8 @@ import {History} from 'history';
 import baseEndpointReducer from './reducers/baseEndpoints';
 import notifReducer from './reducers/notifications';
 import relativeEndpointReducer from './reducers/relativeEndpoints';
+import selectedEndpointReducer from './reducers/selectedEndpoints';
+import possibleValuesReducer from './reducers/possibleValues';
 
 export default function createRootReducer(history: History) {
     return combineReducers({
@@ -12,5 +14,7 @@ export default function createRootReducer(history: History) {
         baseEndpoints: baseEndpointReducer,
         notifications: notifReducer,
         relativeEndpoints: relativeEndpointReducer,
+        selectedEndpoints: selectedEndpointReducer,
+        possibleValues: possibleValuesReducer,
     });
 }

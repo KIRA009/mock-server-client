@@ -33,21 +33,22 @@ interface Props {
     classes: {
         [key: string]: string;
     };
+    endpointId: number;
 }
 
-export const SingleBaseEndpoint = ({endpoint, classes}: Props) => {
+export const SingleBaseEndpoint = ({endpoint, classes, endpointId}: Props) => {
     const [expanded, setExpanded] = useState(false);
     const [open, setOpen] = useState(false);
     const [method, setMethod] = useState('GET' as methods);
     const relativeEndpoint = useRef(null);
     const dispatch = useDispatch();
-    const {endpoints, loading, addEndpointLoading} = useSelector(getRelativeEndPoints(endpoint));
+    const {endpoints, loading, addEndpointLoading} = useSelector(getRelativeEndPoints(endpointId));
     useEffect(() => {
-        if (expanded) dispatch(fillRelativeEndpoints(endpoint));
+        if (expanded) dispatch(fillRelativeEndpoints(endpointId));
         return () => {
             // cleanup
         };
-    }, [expanded, dispatch, endpoint]);
+    }, [expanded, dispatch, endpoint, endpointId]);
     useEffect(() => {
         if (!addEndpointLoading) handleClose();
     }, [addEndpointLoading]);
@@ -59,11 +60,14 @@ export const SingleBaseEndpoint = ({endpoint, classes}: Props) => {
         if (_relativeEndpoint[0] !== '/') _relativeEndpoint = '/' + _relativeEndpoint;
         dispatch(
             addRelativeEndpoint({
-                baseEndpoint: endpoint,
-                endpoint: {
-                    endpoint: _relativeEndpoint,
-                    method,
-                },
+                endpoint: _relativeEndpoint,
+                method,
+                base_endpoint: endpointId,
+                schema: {},
+                is_paginated: false,
+                records_per_page: 1,
+                total_pages: 1,
+                id: 0,
             })
         );
     };

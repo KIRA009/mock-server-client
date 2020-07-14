@@ -2,7 +2,7 @@ import React, {useEffect, useState, useRef} from 'react';
 import {Paper, Typography, Button, Dialog, DialogContent, DialogTitle, TextField} from '@material-ui/core';
 import {useSelector, useDispatch} from 'react-redux';
 
-import styles from './base-endpoint-css';
+import styles from './styles';
 import {getBaseEndPoints, addBaseEndpoint} from '../../reducers/baseEndpoints';
 import {Loader} from '../Loader';
 import {SingleBaseEndpoint} from './singleBaseEndpoint';
@@ -47,7 +47,12 @@ export const BaseEndpoint = () => {
                         <Loader />
                     ) : baseEndpoints.length ? (
                         baseEndpoints.map((endpoint) => (
-                            <SingleBaseEndpoint endpoint={endpoint} classes={classes} key={endpoint} />
+                            <SingleBaseEndpoint
+                                endpointId={endpoint.id}
+                                endpoint={endpoint.endpoint}
+                                classes={classes}
+                                key={endpoint.id}
+                            />
                         ))
                     ) : (
                         <Typography className={classes.emptyBaseEndpoints}>No base endpoints added yet.</Typography>

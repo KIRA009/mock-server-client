@@ -44,7 +44,7 @@ export default notifs.reducer;
 
 export const getNotifs = (state: RootState): notif[] => state.notifications.notifs;
 
-export const addNotif = (payload: {variant: VariantType; text: string}): AppThunk => (dispatch) => {
+export const addNotif = (payload: {variant: VariantType; text: string}): AppThunk => (dispatch: any) => {
     const id = Date.now();
     dispatch(notifs.actions.addNotif({...payload, id}));
 };

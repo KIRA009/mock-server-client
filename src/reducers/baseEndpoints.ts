@@ -1,20 +1,27 @@
 import {createSlice} from '@reduxjs/toolkit';
+
 import {AppThunk, RootState} from '../store';
+import {get, post} from '../requests';
+
+interface baseEndpoint {
+    endpoint: string;
+    id: number;
+}
 
 interface initialState {
-    baseEndpoints: string[];
+    baseEndpoints: baseEndpoint[];
     loading: boolean;
     error: string;
     addBaseEndpointLoading: boolean;
 }
 interface addBaseEndpointPayload {
     type: string;
-    payload: string;
+    payload: baseEndpoint;
 }
 
 interface initiateBaseEndpointPayload {
     type: string;
-    payload: string[];
+    payload: baseEndpoint[];
 }
 
 const baseEndpoints = createSlice({
@@ -42,7 +49,7 @@ const baseEndpoints = createSlice({
             state.baseEndpoints = action.payload;
         },
         _addBaseEndpoint: (state: initialState, action: addBaseEndpointPayload) => {
-            if (state.baseEndpoints.indexOf(action.payload) === -1) {
+            if (!state.baseEndpoints.some((_) => _.id === action.payload.id)) {
                 state.baseEndpoints.push(action.payload);
             }
         },
@@ -59,20 +66,29 @@ export const {
 
 export default baseEndpoints.reducer;
 
-export const fillBaseEndpoints = (): AppThunk => (dispatch) => {
+export const fillBaseEndpoints = (): AppThunk => async (dispatch: any) => {
     dispatch(startLoading(null));
-    setTimeout(() => {
-        dispatch(initiateBaseEndPoints(['/pro']));
+    const baseEndpoints = await get('baseEndpoints/', dispatch);
+    if (!('error' in baseEndpoints)) {
+        dispatch(initiateBaseEndPoints(baseEndpoints.baseEndpoints));
         dispatch(endLoading(null));
-    }, 2000);
+    }
 };
 
-export const addBaseEndpoint = (payload: string): AppThunk => (dispatch) => {
+export const addBaseEndpoint = (payload: string): AppThunk => async (dispatch: any) => {
     dispatch(baseEndpoints.actions.startAddEndpointLoading(null));
-    setTimeout(() => {
-        dispatch(baseEndpoints.actions._addBaseEndpoint(payload));
+    const resp = await post('baseEndpoints/', dispatch, {
+        endpoint: payload,
+    });
+    if (!('error' in resp)) {
+        dispatch(
+            baseEndpoints.actions._addBaseEndpoint({
+                endpoint: payload,
+                id: resp.id,
+            })
+        );
         dispatch(endAddEndpointLoading(null));
-    }, 2000);
+    }
 };
 
 export const getBaseEndPoints = (state: RootState): initialState => state.baseEndpoints;

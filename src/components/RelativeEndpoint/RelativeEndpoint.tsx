@@ -1,9 +1,11 @@
 import React from 'react';
 import {Grid, Typography} from '@material-ui/core';
+import {useDispatch} from 'react-redux';
 
 import {Loader} from '../Loader';
-import {endpointInterface} from '../../reducers/relativeEndpoints';
-import styles from './relative-endpoint-css';
+import {endpointInterface, methods} from '../../reducers/relativeEndpoints';
+import {setSelectedEndpoint} from '../../reducers/selectedEndpoints';
+import styles from './styles';
 
 interface Props {
     endpoints: endpointInterface[];
@@ -12,6 +14,16 @@ interface Props {
 }
 
 export const RelativeEndpoint = ({endpoints, loading, endpoint}: Props) => {
+    const dispatch = useDispatch();
+    const setEndpoint = (baseEndpoint: string, endpoint: string, method: methods) => {
+        dispatch(
+            setSelectedEndpoint({
+                baseEndpoint,
+                endpoint,
+                method,
+            })
+        );
+    };
     const classes = styles();
     return loading ? (
         <Loader />
@@ -19,7 +31,11 @@ export const RelativeEndpoint = ({endpoints, loading, endpoint}: Props) => {
         <div className={classes.root}>
             {endpoints.length ? (
                 endpoints.map((_endpoint) => (
-                    <Grid key={`${_endpoint.endpoint}-${_endpoint.method}`} container className="endpointContainer">
+                    <Grid
+                        onClick={() => setEndpoint(endpoint, _endpoint.endpoint, _endpoint.method)}
+                        key={`${_endpoint.endpoint}-${_endpoint.method}`}
+                        container
+                        className="endpointContainer">
                         <Grid item xs={3} className={`method-${_endpoint.method}`}>
                             {_endpoint.method}
                         </Grid>

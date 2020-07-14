@@ -9,7 +9,7 @@ export const Notification = () => {
     const {enqueueSnackbar} = useSnackbar();
     useEffect(() => {
         for (let notif of notifications) {
-            enqueueSnackbar(Date.now(), {
+            enqueueSnackbar(notif.text, {
                 variant: notif.variant,
                 autoHideDuration: 2000,
             });

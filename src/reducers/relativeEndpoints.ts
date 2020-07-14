@@ -1,16 +1,24 @@
 import {createSlice} from '@reduxjs/toolkit';
+
 import {RootState, AppThunk} from '../store';
+import {get, post, isError} from '../requests';
 
 export type methods = 'GET' | 'POST' | 'PUT';
 
 export interface endpointInterface {
     endpoint: string;
     method: methods;
+    base_endpoint: number;
+    schema: any;
+    is_paginated: boolean;
+    records_per_page: number;
+    total_pages: number;
+    id: number;
 }
 
 interface initialState {
     endpoints: {
-        [key: string]: {
+        [key: number]: {
             endpoints: endpointInterface[];
             loading: boolean;
             addEndpointLoading: boolean;
@@ -21,13 +29,13 @@ interface initialState {
 
 interface toggleLoadingPayload {
     type: string;
-    payload: string;
+    payload: number;
 }
 
 interface getEndpointsPayload {
     type: string;
     payload: {
-        baseEndpoint: string;
+        baseEndpointId: number;
         endpoints: endpointInterface[];
     };
 }
@@ -35,7 +43,7 @@ interface getEndpointsPayload {
 interface addEndpointPayload {
     type: string;
     payload: {
-        baseEndpoint: string;
+        baseEndpointId: number;
         endpoint: endpointInterface;
     };
 }
@@ -48,37 +56,37 @@ const relativeEndpoints = createSlice({
     } as initialState,
     reducers: {
         startInitialLoading: (state: initialState, action: toggleLoadingPayload) => {
-            const baseEndpoint: string = action.payload;
-            state.endpoints[baseEndpoint] = {
+            const baseEndpointId: number = action.payload;
+            state.endpoints[baseEndpointId] = {
                 endpoints: [],
                 loading: true,
                 addEndpointLoading: false,
             };
         },
         endInitialLoading: (state: initialState, action: toggleLoadingPayload) => {
-            const baseEndpoint: string = action.payload;
-            state.endpoints[baseEndpoint].loading = false;
-            state.endpoints[baseEndpoint].addEndpointLoading = false;
+            const baseEndpointId: number = action.payload;
+            state.endpoints[baseEndpointId].loading = false;
+            state.endpoints[baseEndpointId].addEndpointLoading = false;
         },
         initiateRelativeEndpoints: (state: initialState, action: getEndpointsPayload) => {
-            const {baseEndpoint, endpoints} = action.payload;
-            if (baseEndpoint in state.endpoints) state.endpoints[baseEndpoint].endpoints = endpoints;
+            const {baseEndpointId, endpoints} = action.payload;
+            if (baseEndpointId in state.endpoints) state.endpoints[baseEndpointId].endpoints = endpoints;
         },
         addRelativeEndpoint: (state: initialState, action: addEndpointPayload) => {
-            const {baseEndpoint, endpoint} = action.payload;
-            if (baseEndpoint in state.endpoints) {
-                let _endpoint = state.endpoints[baseEndpoint].endpoints.find((_) => _.endpoint === endpoint.endpoint);
+            const {baseEndpointId, endpoint} = action.payload;
+            if (baseEndpointId in state.endpoints) {
+                let _endpoint = state.endpoints[baseEndpointId].endpoints.find((_) => _.endpoint === endpoint.endpoint);
                 if (!!!_endpoint || _endpoint.method !== endpoint.method)
-                    state.endpoints[baseEndpoint].endpoints.push(endpoint);
+                    state.endpoints[baseEndpointId].endpoints.push(endpoint);
             }
         },
         startAddEndpointLoading: (state: initialState, action: toggleLoadingPayload) => {
-            const baseEndpoint = action.payload;
-            if (baseEndpoint in state.endpoints) state.endpoints[baseEndpoint].addEndpointLoading = true;
+            const baseEndpointId: number = action.payload;
+            if (baseEndpointId in state.endpoints) state.endpoints[baseEndpointId].addEndpointLoading = true;
         },
         endAddEndpointLoading: (state: initialState, action: toggleLoadingPayload) => {
-            const baseEndpoint = action.payload;
-            if (baseEndpoint in state.endpoints) state.endpoints[baseEndpoint].addEndpointLoading = false;
+            const baseEndpointId: number = action.payload;
+            if (baseEndpointId in state.endpoints) state.endpoints[baseEndpointId].addEndpointLoading = false;
         },
     },
 });
@@ -87,50 +95,51 @@ export const {initiateRelativeEndpoints, startAddEndpointLoading, endAddEndpoint
 
 export default relativeEndpoints.reducer;
 
-export const fillRelativeEndpoints = (baseEndpoint: string): AppThunk => (dispatch) => {
-    dispatch(relativeEndpoints.actions.startInitialLoading(baseEndpoint));
-    setTimeout(() => {
+export const fillRelativeEndpoints = (baseEndpointId: number): AppThunk => async (dispatch: any) => {
+    dispatch(relativeEndpoints.actions.startInitialLoading(baseEndpointId));
+    let resp = await get(`relativeEndpoints/?baseEndpoint=${baseEndpointId}`, dispatch);
+    if (!isError(resp)) {
         dispatch(
             initiateRelativeEndpoints({
-                baseEndpoint,
-                endpoints: [
-                    {
-                        endpoint: '/feature',
-                        method: 'GET',
-                    },
-                    {
-                        endpoint: '/feature',
-                        method: 'POST',
-                    },
-                    {
-                        endpoint: '/feature',
-                        method: 'PUT',
-                    },
-                ],
+                baseEndpointId,
+                endpoints: resp.relativeEndpoints,
             })
         );
-        dispatch(relativeEndpoints.actions.endInitialLoading(baseEndpoint));
-    }, 2000);
+        dispatch(relativeEndpoints.actions.endInitialLoading(baseEndpointId));
+    }
 };
 
-export const addRelativeEndpoint = (payload: {baseEndpoint: string; endpoint: endpointInterface}): AppThunk => (
-    dispatch
-) => {
-    dispatch(startAddEndpointLoading(payload.baseEndpoint));
-    setTimeout(() => {
-        dispatch(relativeEndpoints.actions.addRelativeEndpoint(payload));
-        dispatch(endAddEndpointLoading(payload.baseEndpoint));
-    }, 2000);
+export const addRelativeEndpoint = (payload: endpointInterface): AppThunk => async (dispatch: any) => {
+    const baseEndpointId: number = payload.base_endpoint;
+    dispatch(startAddEndpointLoading(baseEndpointId));
+    delete payload['id'];
+    const resp = await post(`relativeEndpoints/?baseEndpoint=${baseEndpointId}`, dispatch, {
+        id: baseEndpointId,
+        endpoint: payload.endpoint,
+        method: payload.method,
+    });
+    if (!isError(resp)) {
+        dispatch(
+            relativeEndpoints.actions.addRelativeEndpoint({
+                baseEndpointId,
+                endpoint: {
+                    ...payload,
+                    id: resp.id,
+                },
+            })
+        );
+        dispatch(endAddEndpointLoading(baseEndpointId));
+    }
 };
 
-export const getRelativeEndPoints = (baseEndpoint: string) => (
+export const getRelativeEndPoints = (baseEndpointId: number) => (
     state: RootState
 ): {
     endpoints: endpointInterface[];
     loading: boolean;
     addEndpointLoading: boolean;
 } => {
-    if (baseEndpoint in state.relativeEndpoints.endpoints) return state.relativeEndpoints.endpoints[baseEndpoint];
+    if (baseEndpointId in state.relativeEndpoints.endpoints) return state.relativeEndpoints.endpoints[baseEndpointId];
     return {
         endpoints: [],
         loading: false,
