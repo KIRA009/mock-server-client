@@ -63,11 +63,12 @@ export const SingleBaseEndpoint = ({endpoint, classes, endpointId}: Props) => {
                 endpoint: _relativeEndpoint,
                 method,
                 base_endpoint: endpointId,
-                schema: {},
                 is_paginated: false,
                 records_per_page: 1,
                 total_pages: 1,
                 id: 0,
+                fields: [],
+                baseEndpoint: endpoint,
             })
         );
     };
@@ -100,7 +101,7 @@ export const SingleBaseEndpoint = ({endpoint, classes, endpointId}: Props) => {
                     </AccordionSummary>
                 </div>
                 <AccordionDetails>
-                    <RelativeEndpoint endpoint={endpoint} endpoints={endpoints} loading={loading} />
+                    <RelativeEndpoint baseEndpoint={endpoint} endpoints={endpoints} loading={loading} />
                 </AccordionDetails>
             </Accordion>
             {open && (

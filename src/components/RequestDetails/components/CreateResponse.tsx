@@ -47,6 +47,8 @@ export const CreateResponse = ({classes, fields}: Props) => {
                 key: 'key',
                 value: 'string',
                 type: 'value',
+                id: 0,
+                isChanged: false,
             })
         );
     };

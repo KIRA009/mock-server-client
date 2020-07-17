@@ -3,24 +3,23 @@ import {Grid, Typography} from '@material-ui/core';
 import {useDispatch} from 'react-redux';
 
 import {Loader} from '../Loader';
-import {endpointInterface, methods} from '../../reducers/relativeEndpoints';
+import {endpointInterface} from '../../reducers/relativeEndpoints';
 import {setSelectedEndpoint} from '../../reducers/selectedEndpoints';
 import styles from './styles';
 
 interface Props {
     endpoints: endpointInterface[];
     loading: boolean;
-    endpoint: string;
+    baseEndpoint: string;
 }
 
-export const RelativeEndpoint = ({endpoints, loading, endpoint}: Props) => {
+export const RelativeEndpoint = ({endpoints, loading, baseEndpoint}: Props) => {
     const dispatch = useDispatch();
-    const setEndpoint = (baseEndpoint: string, endpoint: string, method: methods) => {
+    const setEndpoint = (endpoint: endpointInterface) => {
         dispatch(
             setSelectedEndpoint({
+                ...endpoint,
                 baseEndpoint,
-                endpoint,
-                method,
             })
         );
     };
@@ -32,7 +31,7 @@ export const RelativeEndpoint = ({endpoints, loading, endpoint}: Props) => {
             {endpoints.length ? (
                 endpoints.map((_endpoint) => (
                     <Grid
-                        onClick={() => setEndpoint(endpoint, _endpoint.endpoint, _endpoint.method)}
+                        onClick={() => setEndpoint(_endpoint)}
                         key={`${_endpoint.endpoint}-${_endpoint.method}`}
                         container
                         className="endpointContainer">
@@ -40,7 +39,7 @@ export const RelativeEndpoint = ({endpoints, loading, endpoint}: Props) => {
                             {_endpoint.method}
                         </Grid>
                         <Grid item xs={9}>
-                            {endpoint}
+                            {baseEndpoint}
                             {_endpoint.endpoint}
                         </Grid>
                     </Grid>

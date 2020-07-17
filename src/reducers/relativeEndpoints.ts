@@ -2,6 +2,7 @@ import {createSlice} from '@reduxjs/toolkit';
 
 import {RootState, AppThunk} from '../store';
 import {get, post, isError} from '../requests';
+import {Field} from './selectedEndpoints';
 
 export type methods = 'GET' | 'POST' | 'PUT';
 
@@ -9,11 +10,12 @@ export interface endpointInterface {
     endpoint: string;
     method: methods;
     base_endpoint: number;
-    schema: any;
     is_paginated: boolean;
     records_per_page: number;
     total_pages: number;
     id: number;
+    fields: Field[];
+    baseEndpoint: string;
 }
 
 interface initialState {
