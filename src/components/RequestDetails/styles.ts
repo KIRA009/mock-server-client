@@ -1,10 +1,12 @@
 import {makeStyles} from '@material-ui/core';
 
 const styles = makeStyles((theme) => ({
+    root: {
+        padding: 30
+    },
     header: {
         display: 'flex',
         justifyContent: 'space-between',
-        padding: 15,
         width: 500,
         margin: 'auto',
         '&>.MuiTypography-root': {
@@ -12,9 +14,6 @@ const styles = makeStyles((theme) => ({
             width: 350,
             padding: 10,
         },
-    },
-    createResponseRoot: {
-        padding: 15,
     },
     listItem: {
         justifyContent: 'space-around',
@@ -25,6 +24,7 @@ const styles = makeStyles((theme) => ({
         '&>div:nth-child(3)': {
             flex: 2,
         },
+        padding: '8px 0'
     },
     addFieldIcon: {
         display: 'block',
@@ -43,6 +43,17 @@ const styles = makeStyles((theme) => ({
         backgroundColor: 'rgba(0, 0, 0, 0.1)',
         padding: 15,
     },
+    saveBtn: {
+        margin: 10,
+        display: 'flex',
+        justifyContent: 'space-evenly',
+        flexDirection: 'row-reverse'
+    },
+    metaDataDiv: {
+        display: 'flex',
+        justifyContent: 'space-around',
+        margin: 20
+    }
 }));
 
 export default styles;

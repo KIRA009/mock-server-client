@@ -6,16 +6,21 @@ import {Field} from './selectedEndpoints';
 
 export type methods = 'GET' | 'POST' | 'PUT';
 
+export interface metaData {
+    num_pages: number;
+    is_paginated: boolean;
+    records_per_page: number;
+}
+
 export interface endpointInterface {
     endpoint: string;
     method: methods;
     base_endpoint: number;
-    is_paginated: boolean;
-    records_per_page: number;
-    total_pages: number;
     id: number;
     fields: Field[];
     baseEndpoint: string;
+    meta_data: metaData;
+    changed?: any;
 }
 
 interface initialState {

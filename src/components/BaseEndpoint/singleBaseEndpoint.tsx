@@ -63,12 +63,14 @@ export const SingleBaseEndpoint = ({endpoint, classes, endpointId}: Props) => {
                 endpoint: _relativeEndpoint,
                 method,
                 base_endpoint: endpointId,
-                is_paginated: false,
-                records_per_page: 1,
-                total_pages: 1,
                 id: 0,
                 fields: [],
                 baseEndpoint: endpoint,
+                meta_data: {
+                    num_pages: 1,
+                    is_paginated: false,
+                    records_per_page: 1
+                }
             })
         );
     };

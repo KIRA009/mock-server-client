@@ -5,16 +5,15 @@ import {RootState, AppThunk} from '../store';
 import {store} from '../index';
 import {post, isError} from '../requests';
 import {addNotif} from './notifications';
-
-type FieldValues = string | number | boolean;
 export type FieldProps = 'key' | 'value' | 'type';
 
 export interface Field {
     key: string;
     type: string;
-    value: FieldValues;
+    value: any;
     id: number;
     isChanged: boolean;
+    oldValues?: any
 }
 
 interface initialState {
@@ -22,6 +21,7 @@ interface initialState {
     endpoints: endpointInterface[];
     schema: string;
     isDirty: boolean;
+    deleted: Field[];
 }
 
 interface getEndpointPayload {
@@ -58,6 +58,14 @@ interface setFieldsPayload {
     payload: Field[];
 }
 
+interface metaDataPayload {
+    type: string;
+    payload: {
+        key: string;
+        value: boolean | number;
+    }
+}
+
 const matchField = (field1: Field, field2: Field): boolean => {
     return field1.key === field2.key;
 };
@@ -85,6 +93,7 @@ const selectedEndpoints = createSlice({
         endpoints: [],
         schema: '{}',
         isDirty: false,
+        deleted: []
     } as initialState,
     reducers: {
         setSelectedEndpoint: (state: initialState, action: getEndpointPayload) => {
@@ -92,6 +101,7 @@ const selectedEndpoints = createSlice({
             if (state.selected === selected.id) return;
             state.selected = selected.id;
             if (!state.endpoints.some((_) => _.id === action.payload.id)) {
+                selected.changed = {};
                 state.endpoints.push(selected);
                 state.isDirty = false;
             }
@@ -100,8 +110,13 @@ const selectedEndpoints = createSlice({
             const {index, type, newValue} = action.payload;
             const selected = state.endpoints.find((_) => _.id === state.selected);
             const field = selected.fields[index];
+            const oldValue = field[type];
             field[type] = newValue;
-            if (field.id > 0) field.isChanged = true;
+            if (field.id > 0 && !field.isChanged) {
+                field.isChanged = true;
+                field.oldValues = {};
+            }
+            if (field.id > 0 && !(type in field.oldValues)) field.oldValues[type] = oldValue;
             state.isDirty = true;
         },
         addField: (state: initialState, action: addFieldPayload) => {
@@ -113,8 +128,9 @@ const selectedEndpoints = createSlice({
         },
         deleteField: (state: initialState, action: deleteFieldPayload) => {
             const endpointId = state.selected;
-            state.endpoints.find((_) => _.id === endpointId).fields.splice(action.payload, 1);
+            state.deleted.push(state.endpoints.find((_) => _.id === endpointId).fields.splice(action.payload, 1)[0]);
             state.isDirty = true;
+            // state.deleted
         },
         updateSchema: (state: initialState, action: updateSchemaPayload) => {
             state.schema = JSON.stringify(action.payload, null, 4);
@@ -124,10 +140,50 @@ const selectedEndpoints = createSlice({
             const endpointId = state.selected;
             state.endpoints.find((_) => _.id === endpointId).fields = action.payload;
         },
+        updateMeta: (state: initialState, action: metaDataPayload) => {
+            state.isDirty = true;
+            const selected = state.endpoints.find((_) => _.id === state.selected);
+            const {key, value} = action.payload;
+            if (!(key in selected.changed)) {
+                if (key === 'num_pages') selected.changed[key] = selected.meta_data.num_pages;
+                else if (key === 'is_paginated') selected.changed[key] = selected.meta_data.is_paginated;
+                else if (key === 'records_per_page') selected.changed[key] = selected.meta_data.records_per_page;
+            }
+            if (key === 'num_pages') selected.meta_data.num_pages = value as number;
+            else if (key === 'is_paginated') selected.meta_data.is_paginated = value as boolean;
+            else if (key === 'records_per_page') selected.meta_data.records_per_page = value as number;
+        },
+        discardChanges: (state: initialState, action) => {
+            const selected = state.endpoints.find((_) => _.id === state.selected);
+            selected.fields = selected.fields.filter(_ => _.id > 0);
+            for (let field of state.deleted) {
+                selected.fields.push(field);
+            }
+            if (selected.changed) {
+                for (let key in selected.changed) {
+                    if (key === 'num_pages') selected.meta_data.num_pages = selected.changed[key] as number;
+                    else if (key === 'is_paginated') selected.meta_data.is_paginated = selected.changed[key] as boolean;
+                    else if (key === 'records_per_page') selected.meta_data.records_per_page = selected.changed[key] as number;
+                }
+            }
+            selected.changed = {};
+            const fields = selected.fields;
+            for (let field of fields) {
+                if (field.isChanged) {
+                    if ('key' in field.oldValues) field.key = field.oldValues.key;
+                    if ('type' in field.oldValues) field.type = field.oldValues.type;
+                    if ('value' in field.oldValues) field.value = field.oldValues.value;
+                }
+            }
+            state.deleted = [];
+            state.isDirty = false;
+        }
     },
 });
 
 export default selectedEndpoints.reducer;
+
+export const {updateMeta} = selectedEndpoints.actions;
 
 export const setSelectedEndpoint = (payload: endpointInterface): AppThunk => (dispatch: any) => {
     dispatch(selectedEndpoints.actions.setSelectedEndpoint(payload));
@@ -150,6 +206,11 @@ export const deleteField = (payload: number): AppThunk => (dispatch: any) => {
     dispatch(selectedEndpoints.actions.deleteField(payload));
     dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
 };
+
+export const discard = (dispatch: any) => {
+    dispatch(selectedEndpoints.actions.discardChanges(null))
+    dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
+}
 
 export const getSelectedEndpoint = (state: RootState) => ({
     selectedEndpoint: state.selectedEndpoints.endpoints.find((_) => _.id === state.selectedEndpoints.selected),

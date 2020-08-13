@@ -5,7 +5,9 @@ import {useSelector, useDispatch} from 'react-redux';
 import {getSelectedEndpoint} from '../../reducers/selectedEndpoints';
 import styles from './styles';
 import {CreateResponse} from './components/CreateResponse';
-import {save} from '../../reducers/selectedEndpoints';
+// import {Headers} from './components/Headers'
+// import {MetaData} from './components/MetaData'
+import {save, discard} from '../../reducers/selectedEndpoints';
 
 export const RequestDetails = () => {
     const {selectedEndpoint, schema, isDirty} = useSelector(getSelectedEndpoint);
@@ -17,8 +19,11 @@ export const RequestDetails = () => {
     const saveSchema = () => {
         if (isDirty) dispatch(save());
     };
+    const discardChanges = () => {
+        dispatch(discard);
+    }
     return (
-        <div>
+        <div className={classes.root}>
             <div className={classes.header}>
                 <Typography>{selectedEndpoint.baseEndpoint + selectedEndpoint.endpoint}</Typography>
                 <FormControl>
@@ -28,9 +33,16 @@ export const RequestDetails = () => {
             </div>
             <CreateResponse classes={classes} fields={selectedEndpoint.fields} />
             <pre className={classes.schema}>{schema}</pre>
-            <Button disabled={!isDirty} variant="contained" color="primary" onClick={saveSchema}>
-                Save
-            </Button>
+            {/* <MetaData meta_data={selectedEndpoint.meta_data} classes={classes} /> */}
+            <div className={classes.saveBtn}>
+                <Button disabled={!isDirty} variant="contained" color="primary" onClick={saveSchema}>
+                    Save
+                </Button>
+                <Button disabled={!isDirty} variant="contained" color="primary" onClick={discardChanges}>
+                    Discard
+                </Button>
+            </div>
+            {/* <Headers /> */}
         </div>
     );
 };

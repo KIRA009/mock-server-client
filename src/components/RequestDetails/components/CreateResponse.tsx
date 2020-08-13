@@ -29,9 +29,6 @@ export const CreateResponse = ({classes, fields}: Props) => {
     const dispatch = useDispatch();
     const values = useSelector(getValues);
     const schemas = useSelector(getSchemas);
-    // useEffect(() => {
-
-    // }, [fields])
     const update = (e: any, type: string, index: number) => {
         dispatch(
             updateField({
@@ -56,7 +53,7 @@ export const CreateResponse = ({classes, fields}: Props) => {
         dispatch(deleteField(index));
     };
     return (
-        <div className={classes.createResponseRoot}>
+        <div>
             <IconButton aria-label="" color="primary" className={classes.addFieldIcon} onClick={add}>
                 <AddCircleIcon />
             </IconButton>
@@ -90,7 +87,7 @@ export const CreateResponse = ({classes, fields}: Props) => {
                                 <Select
                                     labelId={`field-value-${ind}`}
                                     id={`field-value-select-${ind}`}
-                                    value={''}
+                                    value={value}
                                     onChange={(e) => update(e, 'value', ind)}>
                                     {type === 'schema'
                                         ? schemas.map((schema) => (
