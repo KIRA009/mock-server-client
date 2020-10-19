@@ -53,6 +53,10 @@ const styles = makeStyles((theme) => ({
         display: 'flex',
         justifyContent: 'space-around',
         margin: 20
+    },
+    paginateDiv: {
+        display: 'flex',
+        alignItems: 'center'
     }
 }));
 

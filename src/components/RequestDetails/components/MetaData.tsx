@@ -1,5 +1,6 @@
 import React, {useEffect} from 'react'
-import {Switch, FormControlLabel, TextField} from '@material-ui/core'
+import {Switch, FormControlLabel, TextField, Tooltip} from '@material-ui/core'
+import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import {useDispatch} from 'react-redux'
 
 import {metaData} from '../../../reducers/relativeEndpoints'
@@ -29,25 +30,32 @@ export const MetaData = ({meta_data, classes}: Props) => {
         }))
     };
     const handleChange = (e: any, key: string) => {
-        if (!meta_data.is_paginated && key === 'num_pages') return;
+        if (!meta_data.is_paginated) return;
+        if (!e.target.value || e.target.value <= 0) return;
         dispatch(updateMeta({
             key,
-            value: e.target.value
+            value: Number(e.target.value)
         }))
     };
     return (
         <div className={classes.metaDataDiv}>
-            <FormControlLabel
-                control={
-                    <Switch
-                        checked={meta_data.is_paginated}
-                        onChange={handleIsPaginatedChange}
-                    />
-                }
-                label="Paginate results"
-            />
+            <div className={classes.paginateDiv}>
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={meta_data.is_paginated}
+                            onChange={handleIsPaginatedChange}
+                        />
+                    }
+                    label="Paginate results"
+                />
+                <Tooltip
+                    title={<span>You need to have a 'pageNo' query parameter to access other pages</span>}
+                    classes={{tooltip: classes.toolTip}}>
+                    <HelpOutlineIcon />
+                </Tooltip>
+            </div>
             <TextField disabled={!meta_data.is_paginated} onChange={e => handleChange(e, 'num_pages')} id="num_pages" value={meta_data.num_pages} label="Number of pages" variant="outlined" />
-            <TextField onChange={e => handleChange(e, 'records_per_page')} id="records_per_page" value={meta_data.records_per_page} label="Records per page" variant="outlined" />
         </div>
     )
 }

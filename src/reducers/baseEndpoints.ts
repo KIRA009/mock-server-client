@@ -68,7 +68,7 @@ export default baseEndpoints.reducer;
 
 export const fillBaseEndpoints = (): AppThunk => async (dispatch: any) => {
     dispatch(startLoading(null));
-    const baseEndpoints = await get('baseEndpoints/', dispatch);
+    const baseEndpoints = await get('base-endpoints/get/', dispatch);
     if (!('error' in baseEndpoints)) {
         dispatch(initiateBaseEndPoints(baseEndpoints.baseEndpoints));
         dispatch(endLoading(null));
@@ -77,7 +77,7 @@ export const fillBaseEndpoints = (): AppThunk => async (dispatch: any) => {
 
 export const addBaseEndpoint = (payload: string): AppThunk => async (dispatch: any) => {
     dispatch(baseEndpoints.actions.startAddEndpointLoading(null));
-    const resp = await post('baseEndpoints/', dispatch, {
+    const resp = await post('base-endpoint/add/', dispatch, {
         endpoint: payload,
     });
     if (!('error' in resp)) {

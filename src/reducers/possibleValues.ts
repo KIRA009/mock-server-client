@@ -37,7 +37,7 @@ const possibleValues = createSlice({
 export default possibleValues.reducer;
 
 export const loadSchemas = (): AppThunk => async (dispatch: any) => {
-    const resp = await get('schema/', dispatch);
+    const resp = await get('schemas/get/', dispatch);
     if (!('error' in resp)) {
         dispatch(possibleValues.actions.initiateSchemas(resp.schemas));
     }

@@ -12,6 +12,7 @@ export interface Field {
     type: string;
     value: any;
     id: number;
+    is_array: boolean;
     isChanged: boolean;
     oldValues?: any
 }
@@ -73,15 +74,29 @@ const matchField = (field1: Field, field2: Field): boolean => {
 const calculateSchema = (): any => {
     const state: RootState = store.getState();
     const selectedEndpointId: number = state.selectedEndpoints.selected;
-    const fields = state.selectedEndpoints.endpoints.find((_) => _.id === selectedEndpointId).fields;
+    const selectedEndpoint = state.selectedEndpoints.endpoints.find((_) => _.id === selectedEndpointId);
+    const fields = selectedEndpoint.fields;
     const schema: any = {};
     const schemas = state.possibleValues.schemas;
     for (let field of fields) {
         if (field.type === 'schema') {
             schema[field.key] = schemas.find((_) => _.name === field.value)?.schema;
-        } else {
+        } else if (field.type === 'value') {
             schema[field.key] = field.value;
+        } else if (field.type === 'url_param') {
+            schema[field.key] = `{{urlParam '${field.value}'}}`;
+        } else {
+            schema[field.key] = `{{queryParam '${field.value}'}}`;
         }
+        if (field.is_array) {
+            const temp = new Array(5);
+            temp.fill(schema[field.key], 0, 5);
+            schema[field.key] = temp;
+        }
+    }
+    if (selectedEndpoint.meta_data.is_paginated) {
+        schema['page_num'] = 1;
+        schema['total_pages'] = Number(selectedEndpoint.meta_data.num_pages);
     }
     return schema;
 };
@@ -127,10 +142,11 @@ const selectedEndpoints = createSlice({
             }
         },
         deleteField: (state: initialState, action: deleteFieldPayload) => {
-            const endpointId = state.selected;
-            state.deleted.push(state.endpoints.find((_) => _.id === endpointId).fields.splice(action.payload, 1)[0]);
             state.isDirty = true;
-            // state.deleted
+            const endpointId = state.selected;
+            const field: Field = state.endpoints.find((_) => _.id === endpointId).fields.splice(action.payload, 1)[0];
+            if (field.id === 0) return;
+            state.deleted.push(field);
         },
         updateSchema: (state: initialState, action: updateSchemaPayload) => {
             state.schema = JSON.stringify(action.payload, null, 4);
@@ -147,11 +163,9 @@ const selectedEndpoints = createSlice({
             if (!(key in selected.changed)) {
                 if (key === 'num_pages') selected.changed[key] = selected.meta_data.num_pages;
                 else if (key === 'is_paginated') selected.changed[key] = selected.meta_data.is_paginated;
-                else if (key === 'records_per_page') selected.changed[key] = selected.meta_data.records_per_page;
             }
             if (key === 'num_pages') selected.meta_data.num_pages = value as number;
             else if (key === 'is_paginated') selected.meta_data.is_paginated = value as boolean;
-            else if (key === 'records_per_page') selected.meta_data.records_per_page = value as number;
         },
         discardChanges: (state: initialState, action) => {
             const selected = state.endpoints.find((_) => _.id === state.selected);
@@ -163,7 +177,6 @@ const selectedEndpoints = createSlice({
                 for (let key in selected.changed) {
                     if (key === 'num_pages') selected.meta_data.num_pages = selected.changed[key] as number;
                     else if (key === 'is_paginated') selected.meta_data.is_paginated = selected.changed[key] as boolean;
-                    else if (key === 'records_per_page') selected.meta_data.records_per_page = selected.changed[key] as number;
                 }
             }
             selected.changed = {};
@@ -173,17 +186,20 @@ const selectedEndpoints = createSlice({
                     if ('key' in field.oldValues) field.key = field.oldValues.key;
                     if ('type' in field.oldValues) field.type = field.oldValues.type;
                     if ('value' in field.oldValues) field.value = field.oldValues.value;
+                    if ('is_array' in field.oldValues) field.is_array = field.oldValues.is_array;
                 }
             }
             state.deleted = [];
             state.isDirty = false;
+        },
+        saveChanges: (state: initialState, action) => {
+            const selected = state.endpoints.find((_) => _.id === state.selected);
+            selected.changed = {};
         }
     },
 });
 
 export default selectedEndpoints.reducer;
-
-export const {updateMeta} = selectedEndpoints.actions;
 
 export const setSelectedEndpoint = (payload: endpointInterface): AppThunk => (dispatch: any) => {
     dispatch(selectedEndpoints.actions.setSelectedEndpoint(payload));
@@ -221,9 +237,10 @@ export const getSelectedEndpoint = (state: RootState) => ({
 export const save = (): AppThunk => async (dispatch) => {
     const state: RootState = store.getState();
     const selected = state.selectedEndpoints.endpoints.find((_) => _.id === state.selectedEndpoints.selected);
-    const resp = await post('updateSchema/', dispatch, {
+    const resp = await post('update_schema/', dispatch, {
         fields: selected.fields,
         id: selected.id,
+        meta_data: selected.meta_data
     });
     if (!isError(resp)) {
         dispatch(selectedEndpoints.actions.setFields(resp.fields));
@@ -233,5 +250,19 @@ export const save = (): AppThunk => async (dispatch) => {
                 text: 'Schema successfully saved',
             })
         );
+        dispatch(selectedEndpoints.actions.saveChanges(null));
     }
 };
+
+
+export const updateMeta = (payload : {
+    key: string;
+    value: number | boolean
+}): AppThunk => async (dispatch) => {
+    const {key, value} = payload;
+    dispatch(selectedEndpoints.actions.updateMeta({
+        key,
+        value
+    }));
+    dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
+}

@@ -10,6 +10,8 @@ import {
     IconButton,
     Typography,
     Tooltip,
+    FormControlLabel,
+    Switch
 } from '@material-ui/core';
 import {useDispatch, useSelector} from 'react-redux';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
@@ -23,29 +25,32 @@ interface Props {
         [key: string]: string;
     };
     fields: Field[];
+    url_params: string[];
 }
 
-export const CreateResponse = ({classes, fields}: Props) => {
+export const CreateResponse = ({classes, fields, url_params}: Props) => {
     const dispatch = useDispatch();
     const values = useSelector(getValues);
     const schemas = useSelector(getSchemas);
-    const update = (e: any, type: string, index: number) => {
+    const update = (newValue: any, type: string, index: number) => {
+        if (!newValue) return;
         dispatch(
             updateField({
                 type: type as FieldProps,
                 index,
-                newValue: e.target.value,
+                newValue,
             })
         );
     };
     const add = () => {
         dispatch(
             addField({
-                key: 'key',
+                key: (new Date()).getTime().toString(),
                 value: 'string',
                 type: 'value',
                 id: 0,
                 isChanged: false,
+                is_array: false
             })
         );
     };
@@ -59,7 +64,7 @@ export const CreateResponse = ({classes, fields}: Props) => {
             </IconButton>
             <List component="nav" aria-label="fields">
                 {fields.length ? (
-                    fields.map(({key, type, value}, ind) => (
+                    fields.map(({key, type, value, is_array}, ind) => (
                         <ListItem key={`${key}-${ind}`} className={classes.listItem}>
                             <FormControl>
                                 <TextField
@@ -68,7 +73,7 @@ export const CreateResponse = ({classes, fields}: Props) => {
                                     label="Key"
                                     variant="outlined"
                                     value={key}
-                                    onChange={(e) => update(e, 'key', ind)}
+                                    onChange={(e) => update(e.target.value, 'key', ind)}
                                 />
                             </FormControl>
                             <FormControl>
@@ -77,37 +82,60 @@ export const CreateResponse = ({classes, fields}: Props) => {
                                     labelId={`field-type-${ind}`}
                                     id={`field-type-select-${ind}`}
                                     value={type}
-                                    onChange={(e) => update(e, 'type', ind)}>
+                                    onChange={(e) => update(e.target.value, 'type', ind)}>
                                     <MenuItem value={'value'}>Value</MenuItem>
                                     <MenuItem value={'schema'}>Schema</MenuItem>
+                                    <MenuItem value={'url_param'}>Url Param</MenuItem>
+                                    <MenuItem value={'query_param'}>Query Param</MenuItem>
                                 </Select>
                             </FormControl>
                             <FormControl>
-                                <InputLabel id={`field-value-${ind}`}>Value</InputLabel>
-                                <Select
-                                    labelId={`field-value-${ind}`}
-                                    id={`field-value-select-${ind}`}
-                                    value={value}
-                                    onChange={(e) => update(e, 'value', ind)}>
-                                    {type === 'schema'
+                                {type === 'query_param' ? (
+                                    <TextField label="Name" value={value} variant="outlined" onChange={(e: any) => update(e.target.value, 'value', ind)} />
+                                ) : (
+                                    <>
+                                    <InputLabel id={`field-value-${ind}`}>Value</InputLabel>
+                                    <Select
+                                        labelId={`field-value-${ind}`}
+                                        id={`field-value-select-${ind}`}
+                                        value={value}
+                                        onChange={(e) => update(e.target.value, 'value', ind)}>
+                                        {type === 'schema'
                                         ? schemas.map((schema) => (
-                                              <MenuItem key={schema.name} value={schema.name}>
-                                                  <Tooltip
-                                                      title={<pre>{JSON.stringify(schema.schema, null, 4)}</pre>}
-                                                      classes={{tooltip: classes.toolTip}}>
-                                                      <Typography className={classes.toolTipText}>
-                                                          {schema.name}
-                                                      </Typography>
-                                                  </Tooltip>
-                                              </MenuItem>
-                                          ))
-                                        : values.map((_val) => (
-                                              <MenuItem key={_val} value={_val}>
-                                                  {_val}
-                                              </MenuItem>
-                                          ))}
-                                </Select>
+                                        <MenuItem key={schema.name} value={schema.name}>
+                                            <Tooltip
+                                                title={<pre>{JSON.stringify(schema.schema, null, 4)}</pre>}
+                                                classes={{tooltip: classes.toolTip}}>
+                                                <Typography className={classes.toolTipText}>
+                                                    {schema.name}
+                                                </Typography>
+                                            </Tooltip>
+                                        </MenuItem>
+                                        ))
+                                        : (type === 'value') ? values.map((_val) => (
+                                        <MenuItem key={_val} value={_val}>
+                                            {_val}
+                                        </MenuItem>
+                                        )) : (
+                                            url_params.map((_val) => (
+                                        <MenuItem key={_val} value={_val}>
+                                            {_val}
+                                        </MenuItem>
+                                        ))
+                                        )}
+                                    </Select>
+                                    </>
+                                )}
                             </FormControl>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={is_array}
+                                        onChange={() => update(!is_array, 'is_array', ind)}
+                                    />
+                                }
+                                label="(Is array)"
+                            />
                             <IconButton
                                 aria-label=""
                                 color="primary"

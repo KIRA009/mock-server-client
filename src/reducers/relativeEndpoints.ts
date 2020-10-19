@@ -9,11 +9,11 @@ export type methods = 'GET' | 'POST' | 'PUT';
 export interface metaData {
     num_pages: number;
     is_paginated: boolean;
-    records_per_page: number;
 }
 
 export interface endpointInterface {
     endpoint: string;
+    regex_endpoint: string;
     method: methods;
     base_endpoint: number;
     id: number;
@@ -21,6 +21,7 @@ export interface endpointInterface {
     baseEndpoint: string;
     meta_data: metaData;
     changed?: any;
+    url_params: string[];
 }
 
 interface initialState {
@@ -104,7 +105,7 @@ export default relativeEndpoints.reducer;
 
 export const fillRelativeEndpoints = (baseEndpointId: number): AppThunk => async (dispatch: any) => {
     dispatch(relativeEndpoints.actions.startInitialLoading(baseEndpointId));
-    let resp = await get(`relativeEndpoints/?baseEndpoint=${baseEndpointId}`, dispatch);
+    let resp = await get(`relative-endpoints/get/${baseEndpointId}/`, dispatch);
     if (!isError(resp)) {
         dispatch(
             initiateRelativeEndpoints({
@@ -120,7 +121,7 @@ export const addRelativeEndpoint = (payload: endpointInterface): AppThunk => asy
     const baseEndpointId: number = payload.base_endpoint;
     dispatch(startAddEndpointLoading(baseEndpointId));
     delete payload['id'];
-    const resp = await post(`relativeEndpoints/?baseEndpoint=${baseEndpointId}`, dispatch, {
+    const resp = await post(`relative-endpoints/add/`, dispatch, {
         id: baseEndpointId,
         endpoint: payload.endpoint,
         method: payload.method,
@@ -132,6 +133,8 @@ export const addRelativeEndpoint = (payload: endpointInterface): AppThunk => asy
                 endpoint: {
                     ...payload,
                     id: resp.id,
+                    regex_endpoint: resp.regex_endpoint,
+                    url_params: resp.url_params
                 },
             })
         );

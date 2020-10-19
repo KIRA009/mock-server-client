@@ -69,8 +69,9 @@ export const SingleBaseEndpoint = ({endpoint, classes, endpointId}: Props) => {
                 meta_data: {
                     num_pages: 1,
                     is_paginated: false,
-                    records_per_page: 1
-                }
+                },
+                regex_endpoint: "",
+                url_params: []
             })
         );
     };
