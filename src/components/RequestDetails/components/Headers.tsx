@@ -1,13 +1,7 @@
-import React from 'react'
+import React from 'react';
 
-interface Props {
-
-}
+interface Props {}
 
 export const Headers = ({}: Props) => {
-    return (
-        <div>
-            Headers
-        </div>
-    )
-}
+    return <div>Headers</div>;
+};

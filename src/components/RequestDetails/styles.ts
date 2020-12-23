@@ -2,7 +2,7 @@ import {makeStyles} from '@material-ui/core';
 
 const styles = makeStyles((theme) => ({
     root: {
-        padding: 30
+        padding: 30,
     },
     header: {
         display: 'flex',
@@ -14,6 +14,13 @@ const styles = makeStyles((theme) => ({
             width: 350,
             padding: 10,
         },
+        alignItems: 'center',
+        '& div:nth-child(2)': {
+            alignSelf: 'start',
+        },
+        '& svg': {
+            color: '#303f9f',
+        },
     },
     listItem: {
         justifyContent: 'space-around',
@@ -24,7 +31,7 @@ const styles = makeStyles((theme) => ({
         '&>div:nth-child(3)': {
             flex: 2,
         },
-        padding: '8px 0'
+        padding: '8px 0',
     },
     addFieldIcon: {
         display: 'block',
@@ -47,17 +54,25 @@ const styles = makeStyles((theme) => ({
         margin: 10,
         display: 'flex',
         justifyContent: 'space-evenly',
-        flexDirection: 'row-reverse'
+        flexDirection: 'row-reverse',
     },
     metaDataDiv: {
         display: 'flex',
         justifyContent: 'space-around',
-        margin: 20
+        margin: 20,
     },
     paginateDiv: {
         display: 'flex',
-        alignItems: 'center'
-    }
+        alignItems: 'center',
+    },
+    selectEndpointBanner: {
+        padding: 20,
+    },
+    saveIcon: {
+        '&:disabled svg': {
+            color: 'rgba(0, 0, 0, 0.3)',
+        },
+    },
 }));
 
 export default styles;

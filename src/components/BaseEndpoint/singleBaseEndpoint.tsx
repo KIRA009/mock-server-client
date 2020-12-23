@@ -70,8 +70,8 @@ export const SingleBaseEndpoint = ({endpoint, classes, endpointId}: Props) => {
                     num_pages: 1,
                     is_paginated: false,
                 },
-                regex_endpoint: "",
-                url_params: []
+                regex_endpoint: '',
+                url_params: [],
             })
         );
     };
@@ -109,7 +109,7 @@ export const SingleBaseEndpoint = ({endpoint, classes, endpointId}: Props) => {
             </Accordion>
             {open && (
                 <Dialog open={open} onClose={handleClose} classes={{paper: classes.newEndpointDialog}}>
-                    <DialogTitle id="alert-dialog-slide-title">New base endpoint</DialogTitle>
+                    <DialogTitle id="alert-dialog-slide-title">New relative endpoint</DialogTitle>
                     <DialogContent>
                         <TextField
                             autoFocus

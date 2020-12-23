@@ -11,7 +11,7 @@ import {
     Typography,
     Tooltip,
     FormControlLabel,
-    Switch
+    Switch,
 } from '@material-ui/core';
 import {useDispatch, useSelector} from 'react-redux';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
@@ -45,12 +45,12 @@ export const CreateResponse = ({classes, fields, url_params}: Props) => {
     const add = () => {
         dispatch(
             addField({
-                key: (new Date()).getTime().toString(),
+                key: new Date().getTime().toString(),
                 value: 'string',
                 type: 'value',
                 id: 0,
                 isChanged: false,
-                is_array: false
+                is_array: false,
             })
         );
     };
@@ -91,48 +91,52 @@ export const CreateResponse = ({classes, fields, url_params}: Props) => {
                             </FormControl>
                             <FormControl>
                                 {type === 'query_param' ? (
-                                    <TextField label="Name" value={value} variant="outlined" onChange={(e: any) => update(e.target.value, 'value', ind)} />
+                                    <TextField
+                                        label="Name"
+                                        value={value}
+                                        variant="outlined"
+                                        onChange={(e: any) => update(e.target.value, 'value', ind)}
+                                    />
                                 ) : (
                                     <>
-                                    <InputLabel id={`field-value-${ind}`}>Value</InputLabel>
-                                    <Select
-                                        labelId={`field-value-${ind}`}
-                                        id={`field-value-select-${ind}`}
-                                        value={value}
-                                        onChange={(e) => update(e.target.value, 'value', ind)}>
-                                        {type === 'schema'
-                                        ? schemas.map((schema) => (
-                                        <MenuItem key={schema.name} value={schema.name}>
-                                            <Tooltip
-                                                title={<pre>{JSON.stringify(schema.schema, null, 4)}</pre>}
-                                                classes={{tooltip: classes.toolTip}}>
-                                                <Typography className={classes.toolTipText}>
-                                                    {schema.name}
-                                                </Typography>
-                                            </Tooltip>
-                                        </MenuItem>
-                                        ))
-                                        : (type === 'value') ? values.map((_val) => (
-                                        <MenuItem key={_val} value={_val}>
-                                            {_val}
-                                        </MenuItem>
-                                        )) : (
-                                            url_params.map((_val) => (
-                                        <MenuItem key={_val} value={_val}>
-                                            {_val}
-                                        </MenuItem>
-                                        ))
-                                        )}
-                                    </Select>
+                                        <InputLabel id={`field-value-${ind}`}>Value</InputLabel>
+                                        <Select
+                                            labelId={`field-value-${ind}`}
+                                            id={`field-value-select-${ind}`}
+                                            value={value}
+                                            onChange={(e) => update(e.target.value, 'value', ind)}>
+                                            {type === 'schema'
+                                                ? schemas.map((schema) => (
+                                                      <MenuItem key={schema.name} value={schema.name}>
+                                                          <Tooltip
+                                                              title={
+                                                                  <pre>{JSON.stringify(schema.schema, null, 4)}</pre>
+                                                              }
+                                                              classes={{tooltip: classes.toolTip}}>
+                                                              <Typography className={classes.toolTipText}>
+                                                                  {schema.name}
+                                                              </Typography>
+                                                          </Tooltip>
+                                                      </MenuItem>
+                                                  ))
+                                                : type === 'value'
+                                                ? values.map((_val) => (
+                                                      <MenuItem key={_val} value={_val}>
+                                                          {_val}
+                                                      </MenuItem>
+                                                  ))
+                                                : url_params.map((_val) => (
+                                                      <MenuItem key={_val} value={_val}>
+                                                          {_val}
+                                                      </MenuItem>
+                                                  ))}
+                                        </Select>
                                     </>
                                 )}
                             </FormControl>
                             <FormControlLabel
                                 control={
-                                    <Switch
-                                        checked={is_array}
-                                        onChange={() => update(!is_array, 'is_array', ind)}
-                                    />
+                                    <Switch checked={is_array} onChange={() => update(!is_array, 'is_array', ind)} />
                                 }
                                 label="(Is array)"
                             />

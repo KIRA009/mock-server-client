@@ -1,10 +1,10 @@
 import React from 'react';
 import {Grid, Typography} from '@material-ui/core';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 
 import {Loader} from '../Loader';
 import {endpointInterface} from '../../reducers/relativeEndpoints';
-import {setSelectedEndpoint} from '../../reducers/selectedEndpoints';
+import {setSelectedEndpoint, getSelectedEndpoint} from '../../reducers/selectedEndpoints';
 import styles from './styles';
 
 interface Props {
@@ -15,6 +15,8 @@ interface Props {
 
 export const RelativeEndpoint = ({endpoints, loading, baseEndpoint}: Props) => {
     const dispatch = useDispatch();
+    const selectedEndpoint = useSelector(getSelectedEndpoint);
+
     const setEndpoint = (endpoint: endpointInterface) => {
         dispatch(
             setSelectedEndpoint({
@@ -23,6 +25,7 @@ export const RelativeEndpoint = ({endpoints, loading, baseEndpoint}: Props) => {
             })
         );
     };
+
     const classes = styles();
     return loading ? (
         <Loader />
@@ -34,7 +37,13 @@ export const RelativeEndpoint = ({endpoints, loading, baseEndpoint}: Props) => {
                         onClick={() => setEndpoint(_endpoint)}
                         key={`${_endpoint.endpoint}-${_endpoint.method}`}
                         container
-                        className="endpointContainer">
+                        className={`endpointContainer${
+                            selectedEndpoint.selectedEndpoint
+                                ? selectedEndpoint.selectedEndpoint.id === _endpoint.id
+                                    ? ` ${classes.selected}`
+                                    : ''
+                                : ''
+                        }`}>
                         <Grid item xs={3} className={`method-${_endpoint.method}`}>
                             {_endpoint.method}
                         </Grid>

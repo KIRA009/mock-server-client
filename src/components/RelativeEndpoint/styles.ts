@@ -6,7 +6,7 @@ const styles = makeStyles((_) => ({
         '& .endpointContainer': {
             padding: '8px 16px 16px',
             '&:hover': {
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
                 cursor: 'pointer',
                 color: 'white',
                 '& .method-POST': {
@@ -28,6 +28,17 @@ const styles = makeStyles((_) => ({
         },
         '& .method-PUT': {
             color: 'darkblue',
+        },
+    },
+    selected: {
+        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+        cursor: 'pointer',
+        color: 'white',
+        '& .method-POST': {
+            color: 'lightgreen',
+        },
+        '& .method-PUT': {
+            color: 'lightblue',
         },
     },
 }));

@@ -2,7 +2,8 @@ import {createSlice} from '@reduxjs/toolkit';
 
 import {RootState, AppThunk} from '../store';
 import {get, post, isError} from '../requests';
-import {Field} from './selectedEndpoints';
+import {Field, toggleUpdateEndpointLoading, setSelectedEndpoint, resetSelectedEndpoint} from './selectedEndpoints';
+import {addNotif} from './notifications';
 
 export type methods = 'GET' | 'POST' | 'PUT';
 
@@ -22,6 +23,7 @@ export interface endpointInterface {
     meta_data: metaData;
     changed?: any;
     url_params: string[];
+    isUpdating?: boolean;
 }
 
 interface initialState {
@@ -53,6 +55,14 @@ interface addEndpointPayload {
     payload: {
         baseEndpointId: number;
         endpoint: endpointInterface;
+    };
+}
+
+interface deleteEndpointPayload {
+    type: string;
+    payload: {
+        baseEndpointId: number;
+        id: number;
     };
 }
 
@@ -88,6 +98,14 @@ const relativeEndpoints = createSlice({
                     state.endpoints[baseEndpointId].endpoints.push(endpoint);
             }
         },
+        updateRelativeEndpoint: (state: initialState, action: {type: string; payload: endpointInterface}) => {
+            const {base_endpoint, endpoint, id, method} = action.payload;
+            if (base_endpoint in state.endpoints) {
+                let _endpoint = state.endpoints[base_endpoint].endpoints.find((_) => _.id === id);
+                _endpoint.method = method;
+                _endpoint.endpoint = endpoint;
+            }
+        },
         startAddEndpointLoading: (state: initialState, action: toggleLoadingPayload) => {
             const baseEndpointId: number = action.payload;
             if (baseEndpointId in state.endpoints) state.endpoints[baseEndpointId].addEndpointLoading = true;
@@ -95,6 +113,12 @@ const relativeEndpoints = createSlice({
         endAddEndpointLoading: (state: initialState, action: toggleLoadingPayload) => {
             const baseEndpointId: number = action.payload;
             if (baseEndpointId in state.endpoints) state.endpoints[baseEndpointId].addEndpointLoading = false;
+        },
+        deleteEndpoint: (state: initialState, action: deleteEndpointPayload) => {
+            const {baseEndpointId, id} = action.payload;
+            state.endpoints[baseEndpointId].endpoints = state.endpoints[baseEndpointId].endpoints.filter(
+                (x) => x.id !== id
+            );
         },
     },
 });
@@ -134,11 +158,54 @@ export const addRelativeEndpoint = (payload: endpointInterface): AppThunk => asy
                     ...payload,
                     id: resp.id,
                     regex_endpoint: resp.regex_endpoint,
-                    url_params: resp.url_params
+                    url_params: resp.url_params,
                 },
             })
         );
         dispatch(endAddEndpointLoading(baseEndpointId));
+    }
+};
+
+export const updateRelativeEndpoint = (payload: endpointInterface): AppThunk => async (dispatch: any) => {
+    const {id, endpoint, method} = payload;
+    dispatch(toggleUpdateEndpointLoading(true));
+    const resp = await post(`relative-endpoint/update/`, dispatch, {
+        id,
+        endpoint,
+        method,
+    });
+    if (!isError(resp)) {
+        dispatch(
+            relativeEndpoints.actions.updateRelativeEndpoint({
+                ...payload,
+            })
+        );
+        dispatch(setSelectedEndpoint(payload));
+        dispatch(
+            addNotif({
+                variant: 'success',
+                text: 'Endpoint details updated',
+            })
+        );
+    }
+    dispatch(toggleUpdateEndpointLoading(false));
+};
+
+export const deleteRelativeEndpoint = (payload: {baseEndpointId: number; id: number}): AppThunk => async (
+    dispatch: any
+) => {
+    const resp = await post(`relative-endpoint/delete/`, dispatch, {
+        id: payload.id,
+    });
+    if (!isError(resp)) {
+        dispatch(relativeEndpoints.actions.deleteEndpoint(payload));
+        dispatch(resetSelectedEndpoint(null));
+        dispatch(
+            addNotif({
+                variant: 'success',
+                text: 'Endpoint succesfully deleted',
+            })
+        );
     }
 };
 

@@ -14,7 +14,12 @@ export interface Field {
     id: number;
     is_array: boolean;
     isChanged: boolean;
-    oldValues?: any
+    oldValues?: any;
+}
+
+interface toggleUpdateLoadingPayload {
+    type: string;
+    payload: boolean;
 }
 
 interface initialState {
@@ -64,7 +69,7 @@ interface metaDataPayload {
     payload: {
         key: string;
         value: boolean | number;
-    }
+    };
 }
 
 const matchField = (field1: Field, field2: Field): boolean => {
@@ -108,18 +113,22 @@ const selectedEndpoints = createSlice({
         endpoints: [],
         schema: '{}',
         isDirty: false,
-        deleted: []
+        deleted: [],
     } as initialState,
     reducers: {
         setSelectedEndpoint: (state: initialState, action: getEndpointPayload) => {
             const selected = action.payload;
-            if (state.selected === selected.id) return;
-            state.selected = selected.id;
-            if (!state.endpoints.some((_) => _.id === action.payload.id)) {
+            let endpoint = state.endpoints.find((_) => _.id === action.payload.id);
+            if (!endpoint) {
                 selected.changed = {};
                 state.endpoints.push(selected);
                 state.isDirty = false;
+            } else {
+                endpoint.method = action.payload.method;
+                endpoint.endpoint = action.payload.endpoint;
             }
+            if (state.selected === selected.id) return;
+            state.selected = selected.id;
         },
         updateField: (state: initialState, action: updateFieldPayload) => {
             const {index, type, newValue} = action.payload;
@@ -167,9 +176,13 @@ const selectedEndpoints = createSlice({
             if (key === 'num_pages') selected.meta_data.num_pages = value as number;
             else if (key === 'is_paginated') selected.meta_data.is_paginated = value as boolean;
         },
+        toggleUpdateEndpointLoading: (state: initialState, action: toggleUpdateLoadingPayload) => {
+            const selected = state.endpoints.find((_) => _.id === state.selected);
+            selected.isUpdating = action.payload;
+        },
         discardChanges: (state: initialState, action) => {
             const selected = state.endpoints.find((_) => _.id === state.selected);
-            selected.fields = selected.fields.filter(_ => _.id > 0);
+            selected.fields = selected.fields.filter((_) => _.id > 0);
             for (let field of state.deleted) {
                 selected.fields.push(field);
             }
@@ -195,11 +208,16 @@ const selectedEndpoints = createSlice({
         saveChanges: (state: initialState, action) => {
             const selected = state.endpoints.find((_) => _.id === state.selected);
             selected.changed = {};
-        }
+        },
+        resetSelectedEndpoint: (state: initialState, action) => {
+            state.selected = 0;
+        },
     },
 });
 
 export default selectedEndpoints.reducer;
+
+export const {toggleUpdateEndpointLoading, resetSelectedEndpoint} = selectedEndpoints.actions;
 
 export const setSelectedEndpoint = (payload: endpointInterface): AppThunk => (dispatch: any) => {
     dispatch(selectedEndpoints.actions.setSelectedEndpoint(payload));
@@ -224,9 +242,9 @@ export const deleteField = (payload: number): AppThunk => (dispatch: any) => {
 };
 
 export const discard = (dispatch: any) => {
-    dispatch(selectedEndpoints.actions.discardChanges(null))
+    dispatch(selectedEndpoints.actions.discardChanges(null));
     dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
-}
+};
 
 export const getSelectedEndpoint = (state: RootState) => ({
     selectedEndpoint: state.selectedEndpoints.endpoints.find((_) => _.id === state.selectedEndpoints.selected),
@@ -240,7 +258,7 @@ export const save = (): AppThunk => async (dispatch) => {
     const resp = await post('update_schema/', dispatch, {
         fields: selected.fields,
         id: selected.id,
-        meta_data: selected.meta_data
+        meta_data: selected.meta_data,
     });
     if (!isError(resp)) {
         dispatch(selectedEndpoints.actions.setFields(resp.fields));
@@ -254,15 +272,13 @@ export const save = (): AppThunk => async (dispatch) => {
     }
 };
 
-
-export const updateMeta = (payload : {
-    key: string;
-    value: number | boolean
-}): AppThunk => async (dispatch) => {
+export const updateMeta = (payload: {key: string; value: number | boolean}): AppThunk => async (dispatch) => {
     const {key, value} = payload;
-    dispatch(selectedEndpoints.actions.updateMeta({
-        key,
-        value
-    }));
+    dispatch(
+        selectedEndpoints.actions.updateMeta({
+            key,
+            value,
+        })
+    );
     dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
-}
+};
