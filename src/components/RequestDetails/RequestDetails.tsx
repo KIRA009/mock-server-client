@@ -13,7 +13,7 @@ import {save, discard} from '../../reducers/selectedEndpoints';
 import {methods, updateRelativeEndpoint, deleteRelativeEndpoint} from '../../reducers/relativeEndpoints';
 
 export const RequestDetails = () => {
-    const {selectedEndpoint, schema, isDirty} = useSelector(getSelectedEndpoint);
+    const {selectedEndpoint, schema} = useSelector(getSelectedEndpoint);
     const classes = styles();
     const dispatch = useDispatch();
     const [relativeEndpoint, setRelativeEndpoint] = useState('');
@@ -30,7 +30,7 @@ export const RequestDetails = () => {
         return <div className={classes.selectEndpointBanner}>Select an endpoint</div>;
     }
     const saveSchema = () => {
-        if (isDirty) dispatch(save());
+        if (selectedEndpoint.isDirty) dispatch(save());
     };
     const discardChanges = () => {
         dispatch(discard);
@@ -96,10 +96,14 @@ export const RequestDetails = () => {
             <pre className={classes.schema}>{schema}</pre>
             <MetaData meta_data={selectedEndpoint.meta_data} classes={classes} />
             <div className={classes.saveBtn}>
-                <Button disabled={!isDirty} variant="contained" color="primary" onClick={saveSchema}>
+                <Button disabled={!selectedEndpoint.isDirty} variant="contained" color="primary" onClick={saveSchema}>
                     Save
                 </Button>
-                <Button disabled={!isDirty} variant="contained" color="primary" onClick={discardChanges}>
+                <Button
+                    disabled={!selectedEndpoint.isDirty}
+                    variant="contained"
+                    color="primary"
+                    onClick={discardChanges}>
                     Discard
                 </Button>
             </div>

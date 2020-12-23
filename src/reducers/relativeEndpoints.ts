@@ -24,6 +24,8 @@ export interface endpointInterface {
     changed?: any;
     url_params: string[];
     isUpdating?: boolean;
+    isDirty?: boolean;
+    deleted?: Field[];
 }
 
 interface initialState {

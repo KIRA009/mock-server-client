@@ -26,8 +26,6 @@ interface initialState {
     selected: number;
     endpoints: endpointInterface[];
     schema: string;
-    isDirty: boolean;
-    deleted: Field[];
 }
 
 interface getEndpointPayload {
@@ -106,14 +104,14 @@ const calculateSchema = (): any => {
     return schema;
 };
 
+const getSelected = (state: initialState) => state.endpoints.find((_) => _.id === state.selected);
+
 const selectedEndpoints = createSlice({
     name: 'selectedEndpoints',
     initialState: {
         selected: 0,
         endpoints: [],
         schema: '{}',
-        isDirty: false,
-        deleted: [],
     } as initialState,
     reducers: {
         setSelectedEndpoint: (state: initialState, action: getEndpointPayload) => {
@@ -121,8 +119,9 @@ const selectedEndpoints = createSlice({
             let endpoint = state.endpoints.find((_) => _.id === action.payload.id);
             if (!endpoint) {
                 selected.changed = {};
+                selected.isDirty = false;
+                selected.deleted = [];
                 state.endpoints.push(selected);
-                state.isDirty = false;
             } else {
                 endpoint.method = action.payload.method;
                 endpoint.endpoint = action.payload.endpoint;
@@ -132,7 +131,7 @@ const selectedEndpoints = createSlice({
         },
         updateField: (state: initialState, action: updateFieldPayload) => {
             const {index, type, newValue} = action.payload;
-            const selected = state.endpoints.find((_) => _.id === state.selected);
+            const selected = getSelected(state);
             const field = selected.fields[index];
             const oldValue = field[type];
             field[type] = newValue;
@@ -141,33 +140,33 @@ const selectedEndpoints = createSlice({
                 field.oldValues = {};
             }
             if (field.id > 0 && !(type in field.oldValues)) field.oldValues[type] = oldValue;
-            state.isDirty = true;
+            selected.isDirty = true;
         },
         addField: (state: initialState, action: addFieldPayload) => {
-            const endpointId = state.selected;
-            if (!state.endpoints.find((_) => _.id === endpointId).fields.some((_) => matchField(_, action.payload))) {
-                state.endpoints.find((_) => _.id === endpointId).fields.push(action.payload);
-                state.isDirty = true;
+            if (!getSelected(state).fields.some((_) => matchField(_, action.payload))) {
+                const selected = getSelected(state);
+                selected.fields.push(action.payload);
+                selected.isDirty = true;
             }
         },
         deleteField: (state: initialState, action: deleteFieldPayload) => {
-            state.isDirty = true;
-            const endpointId = state.selected;
-            const field: Field = state.endpoints.find((_) => _.id === endpointId).fields.splice(action.payload, 1)[0];
+            const endpoint = getSelected(state);
+            const field: Field = endpoint.fields.splice(action.payload, 1)[0];
+            endpoint.isDirty = true;
             if (field.id === 0) return;
-            state.deleted.push(field);
+            endpoint.deleted.push(field);
         },
         updateSchema: (state: initialState, action: updateSchemaPayload) => {
             state.schema = JSON.stringify(action.payload, null, 4);
         },
         setFields: (state: initialState, action: setFieldsPayload) => {
-            state.isDirty = false;
-            const endpointId = state.selected;
-            state.endpoints.find((_) => _.id === endpointId).fields = action.payload;
+            const selected = getSelected(state);
+            selected.fields = action.payload;
+            selected.isDirty = false;
         },
         updateMeta: (state: initialState, action: metaDataPayload) => {
-            state.isDirty = true;
-            const selected = state.endpoints.find((_) => _.id === state.selected);
+            const selected = getSelected(state);
+            selected.isDirty = true;
             const {key, value} = action.payload;
             if (!(key in selected.changed)) {
                 if (key === 'num_pages') selected.changed[key] = selected.meta_data.num_pages;
@@ -181,9 +180,9 @@ const selectedEndpoints = createSlice({
             selected.isUpdating = action.payload;
         },
         discardChanges: (state: initialState, action) => {
-            const selected = state.endpoints.find((_) => _.id === state.selected);
+            const selected = getSelected(state);
             selected.fields = selected.fields.filter((_) => _.id > 0);
-            for (let field of state.deleted) {
+            for (let field of selected.deleted) {
                 selected.fields.push(field);
             }
             if (selected.changed) {
@@ -202,8 +201,8 @@ const selectedEndpoints = createSlice({
                     if ('is_array' in field.oldValues) field.is_array = field.oldValues.is_array;
                 }
             }
-            state.deleted = [];
-            state.isDirty = false;
+            selected.deleted = [];
+            selected.isDirty = false;
         },
         saveChanges: (state: initialState, action) => {
             const selected = state.endpoints.find((_) => _.id === state.selected);
@@ -249,7 +248,6 @@ export const discard = (dispatch: any) => {
 export const getSelectedEndpoint = (state: RootState) => ({
     selectedEndpoint: state.selectedEndpoints.endpoints.find((_) => _.id === state.selectedEndpoints.selected),
     schema: state.selectedEndpoints.schema,
-    isDirty: state.selectedEndpoints.isDirty,
 });
 
 export const save = (): AppThunk => async (dispatch) => {
