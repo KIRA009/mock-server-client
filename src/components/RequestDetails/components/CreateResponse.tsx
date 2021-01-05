@@ -9,16 +9,15 @@ import {
     TextField,
     IconButton,
     Typography,
-    Tooltip,
     FormControlLabel,
     Switch,
 } from '@material-ui/core';
-import {useDispatch, useSelector} from 'react-redux';
+import {useDispatch} from 'react-redux';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/Delete';
 
 import {Field, updateField, FieldProps, addField, deleteField} from '../../../reducers/selectedEndpoints';
-import {getValues, getSchemas} from '../../../reducers/possibleValues';
+import {ValueField} from './ValueField';
 
 interface Props {
     classes: {
@@ -28,19 +27,21 @@ interface Props {
     url_params: string[];
 }
 
-export const CreateResponse = ({classes, fields, url_params}: Props) => {
+export const CreateResponse = React.memo(({classes, fields, url_params}: Props) => {
     const dispatch = useDispatch();
-    const values = useSelector(getValues);
-    const schemas = useSelector(getSchemas);
+    let debounce: NodeJS.Timeout;
     const update = (newValue: any, type: string, index: number) => {
         if (!newValue) return;
-        dispatch(
-            updateField({
-                type: type as FieldProps,
-                index,
-                newValue,
-            })
-        );
+        if (debounce) clearTimeout(debounce);
+        debounce = setTimeout(() => {
+            dispatch(
+                updateField({
+                    type: type as FieldProps,
+                    index,
+                    newValue,
+                })
+            );
+        }, 300);
     };
     const add = () => {
         dispatch(
@@ -72,7 +73,7 @@ export const CreateResponse = ({classes, fields, url_params}: Props) => {
                                     id={`field-key-${ind}`}
                                     label="Key"
                                     variant="outlined"
-                                    value={key}
+                                    defaultValue={key}
                                     onChange={(e) => update(e.target.value, 'key', ind)}
                                 />
                             </FormControl>
@@ -89,51 +90,7 @@ export const CreateResponse = ({classes, fields, url_params}: Props) => {
                                     <MenuItem value={'query_param'}>Query Param</MenuItem>
                                 </Select>
                             </FormControl>
-                            <FormControl>
-                                {type === 'query_param' ? (
-                                    <TextField
-                                        label="Name"
-                                        value={value}
-                                        variant="outlined"
-                                        onChange={(e: any) => update(e.target.value, 'value', ind)}
-                                    />
-                                ) : (
-                                    <>
-                                        <InputLabel id={`field-value-${ind}`}>Value</InputLabel>
-                                        <Select
-                                            labelId={`field-value-${ind}`}
-                                            id={`field-value-select-${ind}`}
-                                            value={value}
-                                            onChange={(e) => update(e.target.value, 'value', ind)}>
-                                            {type === 'schema'
-                                                ? schemas.map((schema) => (
-                                                      <MenuItem key={schema.name} value={schema.name}>
-                                                          <Tooltip
-                                                              title={
-                                                                  <pre>{JSON.stringify(schema.schema, null, 4)}</pre>
-                                                              }
-                                                              classes={{tooltip: classes.toolTip}}>
-                                                              <Typography className={classes.toolTipText}>
-                                                                  {schema.name}
-                                                              </Typography>
-                                                          </Tooltip>
-                                                      </MenuItem>
-                                                  ))
-                                                : type === 'value'
-                                                ? values.map((_val) => (
-                                                      <MenuItem key={_val} value={_val}>
-                                                          {_val}
-                                                      </MenuItem>
-                                                  ))
-                                                : url_params.map((_val) => (
-                                                      <MenuItem key={_val} value={_val}>
-                                                          {_val}
-                                                      </MenuItem>
-                                                  ))}
-                                        </Select>
-                                    </>
-                                )}
-                            </FormControl>
+                            <ValueField key={ind} {...{type, value, update, ind, classes, url_params}} />
                             <FormControlLabel
                                 control={
                                     <Switch checked={is_array} onChange={() => update(!is_array, 'is_array', ind)} />
@@ -155,4 +112,4 @@ export const CreateResponse = ({classes, fields, url_params}: Props) => {
             </List>
         </div>
     );
-};
+});
