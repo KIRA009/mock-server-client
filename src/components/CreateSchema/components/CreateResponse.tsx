@@ -17,7 +17,7 @@ import AddCircleIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/Delete';
 
 import {addField, updateField, deleteField} from '../../../reducers/schemaCreation';
-import {Field, FieldProps,} from '../../../reducers/selectedEndpoints';
+import {Field, FieldProps} from '../../../reducers/selectedEndpoints';
 import {ValueField} from './ValueField';
 
 interface Props {
@@ -87,8 +87,6 @@ export const CreateResponse = React.memo(({classes, fields, url_params}: Props) 
                                     onChange={(e) => update(e.target.value, 'type', ind)}>
                                     <MenuItem value={'value'}>Value</MenuItem>
                                     <MenuItem value={'schema'}>Schema</MenuItem>
-                                    <MenuItem value={'url_param'}>Url Param</MenuItem>
-                                    <MenuItem value={'query_param'}>Query Param</MenuItem>
                                 </Select>
                             </FormControl>
                             <ValueField key={ind} {...{type, value, update, ind, classes, url_params}} />

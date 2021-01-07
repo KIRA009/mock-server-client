@@ -17,6 +17,6 @@ export default function createRootReducer(history: History) {
         relativeEndpoints: relativeEndpointReducer,
         selectedEndpoints: selectedEndpointReducer,
         possibleValues: possibleValuesReducer,
-        schemaCreation: schemaCreationReducer
+        schemaCreation: schemaCreationReducer,
     });
 }

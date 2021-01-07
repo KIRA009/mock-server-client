@@ -6,8 +6,7 @@ import styles from './styles';
 import {getBaseEndPoints, addBaseEndpoint} from '../../reducers/baseEndpoints';
 import {Loader} from '../Loader';
 import {SingleBaseEndpoint} from './singleBaseEndpoint';
-import {CreateSchema} from '../CreateSchema'
-
+import {CreateSchema} from '../CreateSchema';
 
 export const BaseEndpoint = () => {
     const dispatch = useDispatch();
@@ -98,10 +97,10 @@ export const BaseEndpoint = () => {
                 </Dialog>
             )}
             {openSchema && (
-                <Dialog maxWidth='xl' open={openSchema} onClose={handleClose}>
+                <Dialog maxWidth="xl" open={openSchema} onClose={handleClose}>
                     <DialogTitle id="alert-dialog-slide-title">New Schema</DialogTitle>
                     <DialogContent>
-                        <CreateSchema/>
+                        <CreateSchema />
                     </DialogContent>
                 </Dialog>
             )}

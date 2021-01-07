@@ -31,10 +31,14 @@ const possibleValues = createSlice({
         ) => {
             state.schemas = action.payload;
         },
+        addSchema: (state: initialState, action: {type: string; payload: schema}) => {
+            state.schemas.push(action.payload);
+        },
     },
 });
 
 export default possibleValues.reducer;
+export const {addSchema} = possibleValues.actions;
 
 export const loadSchemas = (): AppThunk => async (dispatch: any) => {
     const resp = await get('schemas/get/', dispatch);
