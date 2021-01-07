@@ -65,11 +65,7 @@ export const SingleBaseEndpoint = ({endpoint, classes, endpointId}: Props) => {
                 base_endpoint: endpointId,
                 id: 0,
                 fields: [],
-<<<<<<< HEAD
                 headerFields: [],
-=======
-                headerFields:[],
->>>>>>> feat(): Added Headers field
                 baseEndpoint: endpoint,
                 meta_data: {
                     num_records: 1,

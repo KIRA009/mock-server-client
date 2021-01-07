@@ -7,11 +7,7 @@ import {post, isError} from '../requests';
 import {addNotif} from './notifications';
 import { type } from 'os';
 export type FieldProps = 'key' | 'value' | 'type';
-<<<<<<< HEAD
 export type HeaderFieldProps = 'key' | 'value';
-=======
-export type HeaderFieldProps= 'key' | 'value'
->>>>>>> feat(): Added Headers field
 
 export interface Field {
     key: string;
@@ -40,11 +36,7 @@ interface initialState {
     selected: number;
     endpoints: endpointInterface[];
     schema: string;
-<<<<<<< HEAD
     schemaHeader: string;
-=======
-    schemaHeader:string;
->>>>>>> feat(): Added Headers field
 }
 
 interface getEndpointPayload {
@@ -158,19 +150,11 @@ const calculateSchemaHeader = (): any => {
     const state: RootState = store.getState();
     const selectedEndpointId: number = state.selectedEndpoints.selected;
     const selectedEndpoint = state.selectedEndpoints.endpoints.find((_) => _.id === selectedEndpointId);
-<<<<<<< HEAD
     const headerFields = selectedEndpoint.headerFields;
     const schemaHeader: any = {};
 
     for (let headerField of headerFields) {
         schemaHeader[headerField.key] = headerField.value;
-=======
-    const headerFields=selectedEndpoint.headerFields;
-    const schemaHeader: any = {};
-   
-    for(let headerField of headerFields){
-        schemaHeader[headerField.key]=headerField.value;
->>>>>>> feat(): Added Headers field
     }
     return schemaHeader;
 };
@@ -193,13 +177,8 @@ const selectedEndpoints = createSlice({
                 selected.changed = {};
                 selected.isDirty = false;
                 selected.deleted = [];
-<<<<<<< HEAD
                 selected.headerFields = []; //Now setting it default to empty array
 
-=======
-                selected.headerFields=[]; //Now setting it default to empty array
-                
->>>>>>> feat(): Added Headers field
                 state.endpoints.push(selected);
             } else {
                 endpoint.method = action.payload.method;
@@ -222,11 +201,7 @@ const selectedEndpoints = createSlice({
             selected.isDirty = true;
         },
         updateHeaderField: (state: initialState, action: updateHeaderFieldPayload) => {
-<<<<<<< HEAD
             const {index, type, newValue} = action.payload;
-=======
-            const {index,type,newValue} = action.payload;
->>>>>>> feat(): Added Headers field
             const selected = getSelected(state);
             const headerField = selected.headerFields[index];
             const oldValue = headerField[type];
@@ -237,11 +212,6 @@ const selectedEndpoints = createSlice({
             }
             if (headerField.id > 0 && !(type in headerField.oldValues)) headerField.oldValues[type] = oldValue;
             selected.isDirty = true;
-<<<<<<< HEAD
-=======
-
-            
->>>>>>> feat(): Added Headers field
         },
         addField: (state: initialState, action: addFieldPayload) => {
             if (!getSelected(state).fields.some((_) => matchField(_, action.payload))) {
@@ -271,12 +241,6 @@ const selectedEndpoints = createSlice({
             if (headerField.id === 0) return;
             endpoint.deletedHeader.push(headerField);
         },
-<<<<<<< HEAD
-
-=======
-        
-        
->>>>>>> feat(): Added Headers field
         updateSchema: (state: initialState, action: updateSchemaPayload) => {
             state.schema = JSON.stringify(action.payload, null, 4);
         },
@@ -357,10 +321,6 @@ export const setSelectedEndpoint = (payload: endpointInterface): AppThunk => (di
     dispatch(selectedEndpoints.actions.setSelectedEndpoint(payload));
     dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
     dispatch(selectedEndpoints.actions.updateSchemaHeader(calculateSchemaHeader()));
-<<<<<<< HEAD
-=======
-    
->>>>>>> feat(): Added Headers field
 };
 
 export const addField = (payload: Field): AppThunk => (dispatch: any) => {
@@ -402,11 +362,7 @@ export const discard = (dispatch: any) => {
 export const getSelectedEndpoint = (state: RootState) => ({
     selectedEndpoint: state.selectedEndpoints.endpoints.find((_) => _.id === state.selectedEndpoints.selected),
     schema: state.selectedEndpoints.schema,
-<<<<<<< HEAD
     schemaHeader: state.selectedEndpoints.schemaHeader,
-=======
-    schemaHeader:state.selectedEndpoints.schemaHeader,
->>>>>>> feat(): Added Headers field
 });
 
 export const save = (): AppThunk => async (dispatch) => {
@@ -414,11 +370,7 @@ export const save = (): AppThunk => async (dispatch) => {
     const selected = state.selectedEndpoints.endpoints.find((_) => _.id === state.selectedEndpoints.selected);
     const resp = await post('update_schema/', dispatch, {
         fields: selected.fields,
-<<<<<<< HEAD
         headerFields: selected.headerFields,
-=======
-        headerFields:selected.headerFields,
->>>>>>> feat(): Added Headers field
         id: selected.id,
         meta_data: selected.meta_data,
     });

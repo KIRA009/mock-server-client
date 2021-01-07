@@ -2,7 +2,6 @@ import {createSlice} from '@reduxjs/toolkit';
 
 import {RootState, AppThunk} from '../store';
 import {get, post, isError} from '../requests';
-<<<<<<< HEAD
 import {
     Field,
     HeaderField,
@@ -10,9 +9,6 @@ import {
     setSelectedEndpoint,
     resetSelectedEndpoint,
 } from './selectedEndpoints';
-=======
-import {Field,HeaderField, toggleUpdateEndpointLoading, setSelectedEndpoint, resetSelectedEndpoint} from './selectedEndpoints';
->>>>>>> feat(): Added Headers field
 import {addNotif} from './notifications';
 
 export type methods = 'GET' | 'POST' | 'PUT';
@@ -30,11 +26,7 @@ export interface endpointInterface {
     base_endpoint: number;
     id: number;
     fields: Field[];
-<<<<<<< HEAD
     headerFields: HeaderField[];
-=======
-    headerFields:HeaderField[];
->>>>>>> feat(): Added Headers field
     baseEndpoint: string;
     meta_data: metaData;
     changed?: any;
@@ -42,11 +34,7 @@ export interface endpointInterface {
     isUpdating?: boolean;
     isDirty?: boolean;
     deleted?: Field[];
-<<<<<<< HEAD
     deletedHeader?: HeaderField[];
-=======
-    deletedHeader?:HeaderField[];
->>>>>>> feat(): Added Headers field
 }
 
 interface initialState {
