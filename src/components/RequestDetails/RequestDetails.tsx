@@ -58,7 +58,7 @@ export const RequestDetails = () => {
                 id: selectedEndpoint.id,
             })
         );
-    };    
+    };
     return (
         <div className={classes.root}>
             <div className={classes.header}>

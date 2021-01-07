@@ -99,9 +99,13 @@ const calculateSchema = (): any => {
     }
     if (selectedEndpoint.meta_data.is_paginated) {
         const paginatedSchema: any = {};
-        paginatedSchema['items'] = Array(Object.keys(schema).length ? selectedEndpoint.meta_data.records_per_page : 0).fill(schema);
+        paginatedSchema['items'] = Array(
+            Object.keys(schema).length ? selectedEndpoint.meta_data.records_per_page : 0
+        ).fill(schema);
         paginatedSchema['page_no'] = 1;
-        paginatedSchema['total_pages'] = Math.ceil(Number(selectedEndpoint.meta_data.num_records) / Number(selectedEndpoint.meta_data.records_per_page));
+        paginatedSchema['total_pages'] = Math.ceil(
+            Number(selectedEndpoint.meta_data.num_records) / Number(selectedEndpoint.meta_data.records_per_page)
+        );
         return paginatedSchema;
     }
     return schema;
@@ -174,11 +178,12 @@ const selectedEndpoints = createSlice({
             if (!(key in selected.changed)) {
                 if (key === 'num_records') selected.changed[key] = selected.meta_data.num_records;
                 else if (key === 'is_paginated') selected.changed[key] = selected.meta_data.is_paginated;
-                else if (key === 'records_per_page') selected.changed[key] = selected.meta_data.records_per_page
+                else if (key === 'records_per_page') selected.changed[key] = selected.meta_data.records_per_page;
             }
             if (key === 'num_records') selected.meta_data.num_records = value as number;
             else if (key === 'is_paginated') selected.meta_data.is_paginated = value as boolean;
-            else if (key === 'records_per_page') selected.meta_data.records_per_page = value as number;
+            else if (key === 'records_per_page' && (value as number) <= selected.meta_data.num_records)
+                selected.meta_data.records_per_page = value as number;
         },
         toggleUpdateEndpointLoading: (state: initialState, action: toggleUpdateLoadingPayload) => {
             const selected = state.endpoints.find((_) => _.id === state.selected);
@@ -194,7 +199,8 @@ const selectedEndpoints = createSlice({
                 for (let key in selected.changed) {
                     if (key === 'num_records') selected.meta_data.num_records = selected.changed[key] as number;
                     else if (key === 'is_paginated') selected.meta_data.is_paginated = selected.changed[key] as boolean;
-                    else if (key === 'records_per_page') selected.meta_data.records_per_page = selected.changed[key] as number;
+                    else if (key === 'records_per_page')
+                        selected.meta_data.records_per_page = selected.changed[key] as number;
                 }
             }
             selected.changed = {};
