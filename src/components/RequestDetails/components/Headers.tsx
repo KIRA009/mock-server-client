@@ -1,19 +1,18 @@
 import React from 'react';
 
-import {FormControl,List,ListItem, InputLabel,Typography,
-    FormControlLabel,
-    Button, TextField, Select, MenuItem, IconButton,    Switch,
-} from '@material-ui/core';
-import SaveIcon from '@material-ui/icons/Save';
+import {FormControl, List, ListItem, Typography, TextField, IconButton} from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
-import styles from '../styles';
 import {useDispatch} from 'react-redux';
-import {Field,HeaderField,updateField,updateHeaderField, FieldProps,HeaderFieldProps, addField,addHeaderField, deleteField,deleteHeaderField} from '../../../reducers/selectedEndpoints';
-import {ValueField} from './ValueField';
+import {
+    HeaderField,
+    updateHeaderField,
+    HeaderFieldProps,
+    addHeaderField,
+    deleteHeaderField,
+} from '../../../reducers/selectedEndpoints';
 import {useSelector} from 'react-redux';
 import {getSelectedEndpoint} from '../../../reducers/selectedEndpoints';
-
 
 interface Props {
     classes: {
@@ -24,7 +23,7 @@ interface Props {
 }
 
 export const Headers = ({classes, fields, url_params}: Props) => {
-    const {selectedEndpoint, schema,schemaHeader} = useSelector(getSelectedEndpoint);
+    const {schemaHeader} = useSelector(getSelectedEndpoint);
     const dispatch = useDispatch();
     let debounce: NodeJS.Timeout;
     const update = (newValue: any, type: string, index: number) => {
@@ -55,15 +54,15 @@ export const Headers = ({classes, fields, url_params}: Props) => {
         dispatch(deleteHeaderField(index));
     };
     return (
-    <div>
-        <br></br>
-        <div>Headers:</div>
-        <IconButton aria-label="" color="primary" className={classes.addFieldIcon} onClick={add}>
-        <AddCircleIcon />
-        </IconButton> 
-        <List component="nav" aria-label="fields">
+        <div>
+            <br></br>
+            <div>Headers:</div>
+            <IconButton aria-label="" color="primary" className={classes.addFieldIcon} onClick={add}>
+                <AddCircleIcon />
+            </IconButton>
+            <List component="nav" aria-label="fields">
                 {fields?.length ? (
-                    fields.map(({key,value, is_array}, ind) => (
+                    fields.map(({key, value, is_array}, ind) => (
                         <ListItem key={`${key}-${ind}`} className={classes.listItem}>
                             <FormControl>
                                 <TextField
@@ -84,7 +83,7 @@ export const Headers = ({classes, fields, url_params}: Props) => {
                                     onChange={(e) => update(e.target.value, 'value', ind)}
                                 />
                             </FormControl>
-                            
+
                             <IconButton
                                 aria-label=""
                                 color="primary"
@@ -92,7 +91,6 @@ export const Headers = ({classes, fields, url_params}: Props) => {
                                 onClick={() => del(ind)}>
                                 <DeleteIcon />
                             </IconButton>
-                            
                         </ListItem>
                     ))
                 ) : (
@@ -100,6 +98,6 @@ export const Headers = ({classes, fields, url_params}: Props) => {
                 )}
             </List>
             <pre className={classes.schema}>{schemaHeader}</pre>
-    </div>   
+        </div>
     );
 };

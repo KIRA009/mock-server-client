@@ -16,7 +16,7 @@ import {useDispatch} from 'react-redux';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/Delete';
 
-import {Field, updateField,updateHeaderField, FieldProps, addField, deleteField} from '../../../reducers/selectedEndpoints';
+import {Field, updateField, FieldProps, addField, deleteField} from '../../../reducers/selectedEndpoints';
 import {ValueField} from './ValueField';
 
 interface Props {

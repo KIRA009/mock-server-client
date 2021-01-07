@@ -16,7 +16,6 @@ export const CreateSchema = () => {
     const saveSchema = () => {
         if (selectedSchema.isDirty) dispatch(save());
     };
-    console.log(selectedSchema);
 
     return (
         <>

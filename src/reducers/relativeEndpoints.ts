@@ -2,7 +2,13 @@ import {createSlice} from '@reduxjs/toolkit';
 
 import {RootState, AppThunk} from '../store';
 import {get, post, isError} from '../requests';
-import {Field,HeaderField, toggleUpdateEndpointLoading, setSelectedEndpoint, resetSelectedEndpoint} from './selectedEndpoints';
+import {
+    Field,
+    HeaderField,
+    toggleUpdateEndpointLoading,
+    setSelectedEndpoint,
+    resetSelectedEndpoint,
+} from './selectedEndpoints';
 import {addNotif} from './notifications';
 
 export type methods = 'GET' | 'POST' | 'PUT';
@@ -28,7 +34,7 @@ export interface endpointInterface {
     isUpdating?: boolean;
     isDirty?: boolean;
     deleted?: Field[];
-    deletedHeader?:HeaderField[];
+    deletedHeader?: HeaderField[];
 }
 
 interface initialState {

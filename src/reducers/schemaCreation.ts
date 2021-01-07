@@ -142,7 +142,6 @@ export const getSelectedSchema = (state: RootState) => ({
 export const save = (): AppThunk => async (dispatch) => {
     const state: RootState = store.getState();
     const selected = state.schemaCreation.schema;
-    console.log(selected);
 
     const resp = await post('schema/add/', dispatch, {name: selected.name, fields: selected.fields});
     if (!isError(resp)) {
