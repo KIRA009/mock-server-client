@@ -7,6 +7,7 @@ import notifReducer from './reducers/notifications';
 import relativeEndpointReducer from './reducers/relativeEndpoints';
 import selectedEndpointReducer from './reducers/selectedEndpoints';
 import possibleValuesReducer from './reducers/possibleValues';
+import schemaCreationReducer from './reducers/schemaCreation';
 
 export default function createRootReducer(history: History) {
     return combineReducers({
@@ -16,5 +17,6 @@ export default function createRootReducer(history: History) {
         relativeEndpoints: relativeEndpointReducer,
         selectedEndpoints: selectedEndpointReducer,
         possibleValues: possibleValuesReducer,
+        schemaCreation: schemaCreationReducer
     });
 }

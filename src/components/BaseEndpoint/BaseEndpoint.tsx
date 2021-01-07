@@ -6,6 +6,8 @@ import styles from './styles';
 import {getBaseEndPoints, addBaseEndpoint} from '../../reducers/baseEndpoints';
 import {Loader} from '../Loader';
 import {SingleBaseEndpoint} from './singleBaseEndpoint';
+import {CreateSchema} from '../CreateSchema'
+
 
 export const BaseEndpoint = () => {
     const dispatch = useDispatch();
@@ -13,8 +15,10 @@ export const BaseEndpoint = () => {
     const newBaseEndpoint = useRef(null);
 
     const [open, setOpen] = useState(false);
+    const [openSchema, setOpenSchema] = useState(false);
     const handleClose = () => {
         setOpen(false);
+        setOpenSchema(false);
     };
     const {baseEndpoints, loading, addBaseEndpointLoading} = useSelector(getBaseEndPoints);
 
@@ -41,6 +45,15 @@ export const BaseEndpoint = () => {
                             variant="contained"
                             onClick={() => setOpen(true)}>
                             Add new base endpoint
+                        </Button>
+                    </div>
+                    <div className={classes.newBaseEndpointBtnDiv}>
+                        <Button
+                            className={classes.btn}
+                            color="primary"
+                            variant="contained"
+                            onClick={() => setOpenSchema(true)}>
+                            Add new Schema
                         </Button>
                     </div>
                     {loading ? (
@@ -81,6 +94,14 @@ export const BaseEndpoint = () => {
                             disabled={addBaseEndpointLoading}>
                             Add
                         </Button>
+                    </DialogContent>
+                </Dialog>
+            )}
+            {openSchema && (
+                <Dialog maxWidth='xl' open={openSchema} onClose={handleClose}>
+                    <DialogTitle id="alert-dialog-slide-title">New Schema</DialogTitle>
+                    <DialogContent>
+                        <CreateSchema/>
                     </DialogContent>
                 </Dialog>
             )}
