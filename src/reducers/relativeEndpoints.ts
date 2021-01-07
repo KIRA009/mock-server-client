@@ -170,6 +170,7 @@ export const addRelativeEndpoint = (payload: endpointInterface): AppThunk => asy
                     id: resp.id,
                     regex_endpoint: resp.regex_endpoint,
                     url_params: resp.url_params,
+                    endpoint: resp.endpoint
                 },
             })
         );

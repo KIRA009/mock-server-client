@@ -73,6 +73,9 @@ const styles = makeStyles((theme) => ({
             color: 'rgba(0, 0, 0, 0.3)',
         },
     },
+    divider: {
+        margin: '20px auto'
+    }
 }));
 
 export default styles;

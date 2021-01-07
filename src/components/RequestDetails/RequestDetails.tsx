@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {FormControl, InputLabel, Button, TextField, Select, MenuItem, IconButton} from '@material-ui/core';
+import {FormControl, InputLabel, Button, TextField, Select, MenuItem, IconButton, Divider} from '@material-ui/core';
 import {useSelector, useDispatch} from 'react-redux';
 import SaveIcon from '@material-ui/icons/Save';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -13,7 +13,7 @@ import {save, discard} from '../../reducers/selectedEndpoints';
 import {methods, updateRelativeEndpoint, deleteRelativeEndpoint} from '../../reducers/relativeEndpoints';
 
 export const RequestDetails = () => {
-    const {selectedEndpoint, schema} = useSelector(getSelectedEndpoint);
+    const {selectedEndpoint} = useSelector(getSelectedEndpoint);
     const classes = styles();
     const dispatch = useDispatch();
     const [relativeEndpoint, setRelativeEndpoint] = useState('');
@@ -88,17 +88,18 @@ export const RequestDetails = () => {
                     <DeleteIcon />
                 </IconButton>
             </div>
-            <CreateResponse
-                url_params={selectedEndpoint.url_params}
-                classes={classes}
-                fields={selectedEndpoint.fields}
-            />
-            <pre className={classes.schema}>{schema}</pre>
             <Headers
                 url_params={selectedEndpoint.url_params}
                 classes={classes}
                 fields={selectedEndpoint.headerFields}
             />
+            <Divider className={classes.divider} />
+            <CreateResponse
+                url_params={selectedEndpoint.url_params}
+                classes={classes}
+                fields={selectedEndpoint.fields}
+            />
+            <Divider className={classes.divider} />
 
             <MetaData meta_data={selectedEndpoint.meta_data} classes={classes} />
 
@@ -114,7 +115,6 @@ export const RequestDetails = () => {
                     Discard
                 </Button>
             </div>
-            <pre className={classes.schema}>{schema}</pre>
         </div>
     );
 };

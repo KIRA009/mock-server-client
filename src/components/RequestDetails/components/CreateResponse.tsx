@@ -12,11 +12,11 @@ import {
     FormControlLabel,
     Switch,
 } from '@material-ui/core';
-import {useDispatch} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/Delete';
 
-import {Field, updateField, FieldProps, addField, deleteField} from '../../../reducers/selectedEndpoints';
+import {Field, updateField, FieldProps, addField, deleteField, getSelectedEndpoint} from '../../../reducers/selectedEndpoints';
 import {ValueField} from './ValueField';
 
 interface Props {
@@ -28,6 +28,7 @@ interface Props {
 }
 
 export const CreateResponse = React.memo(({classes, fields, url_params}: Props) => {
+    const {schema} = useSelector(getSelectedEndpoint);
     const dispatch = useDispatch();
     let debounce: NodeJS.Timeout;
     const update = (newValue: any, type: string, index: number) => {
@@ -60,6 +61,9 @@ export const CreateResponse = React.memo(({classes, fields, url_params}: Props) 
     };
     return (
         <div>
+            <Typography>
+                Body
+            </Typography>
             <IconButton aria-label="" color="primary" className={classes.addFieldIcon} onClick={add}>
                 <AddCircleIcon />
             </IconButton>
@@ -110,6 +114,7 @@ export const CreateResponse = React.memo(({classes, fields, url_params}: Props) 
                     <Typography>No fields added yet</Typography>
                 )}
             </List>
+            <pre className={classes.schema}>{schema}</pre>
         </div>
     );
 });
