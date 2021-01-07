@@ -16,7 +16,14 @@ import {useSelector, useDispatch} from 'react-redux';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/Delete';
 
-import {Field, updateField, FieldProps, addField, deleteField, getSelectedEndpoint} from '../../../reducers/selectedEndpoints';
+import {
+    Field,
+    updateField,
+    FieldProps,
+    addField,
+    deleteField,
+    getSelectedEndpoint,
+} from '../../../reducers/selectedEndpoints';
 import {ValueField} from './ValueField';
 
 interface Props {
@@ -61,9 +68,7 @@ export const CreateResponse = React.memo(({classes, fields, url_params}: Props) 
     };
     return (
         <div>
-            <Typography>
-                Body
-            </Typography>
+            <Typography>Body</Typography>
             <IconButton aria-label="" color="primary" className={classes.addFieldIcon} onClick={add}>
                 <AddCircleIcon />
             </IconButton>

@@ -74,8 +74,8 @@ const styles = makeStyles((theme) => ({
         },
     },
     divider: {
-        margin: '20px auto'
-    }
+        margin: '20px auto',
+    },
 }));
 
 export default styles;
