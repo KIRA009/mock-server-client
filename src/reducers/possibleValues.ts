@@ -9,6 +9,12 @@ interface schema {
         [key: string]: any;
     };
 }
+interface schemaHeader {
+    name: string;
+    schema: {
+        [key: string]: any;
+    };
+}
 
 interface initialState {
     values: ('string' | 'number' | 'boolean')[];
