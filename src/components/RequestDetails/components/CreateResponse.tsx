@@ -16,7 +16,11 @@ import {useSelector, useDispatch} from 'react-redux';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/Delete';
 
+<<<<<<< HEAD
 import {Field, updateField, FieldProps, addField, deleteField, getSelectedEndpoint} from '../../../reducers/selectedEndpoints';
+=======
+import {Field, updateField,updateHeaderField, FieldProps, addField, deleteField} from '../../../reducers/selectedEndpoints';
+>>>>>>> feat(): Added Headers field
 import {ValueField} from './ValueField';
 
 interface Props {
