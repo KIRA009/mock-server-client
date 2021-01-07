@@ -241,6 +241,7 @@ const selectedEndpoints = createSlice({
             if (headerField.id === 0) return;
             endpoint.deletedHeader.push(headerField);
         },
+
         updateSchema: (state: initialState, action: updateSchemaPayload) => {
             state.schema = JSON.stringify(action.payload, null, 4);
         },

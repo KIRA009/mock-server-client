@@ -83,6 +83,7 @@ export const Headers = ({classes, fields, url_params}: Props) => {
                                     onChange={(e) => update(e.target.value, 'value', ind)}
                                 />
                             </FormControl>
+
                             <IconButton
                                 aria-label=""
                                 color="primary"
