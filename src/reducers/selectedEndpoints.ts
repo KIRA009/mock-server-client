@@ -265,7 +265,8 @@ const selectedEndpoints = createSlice({
                 else if (key === 'is_paginated') selected.changed[key] = selected.meta_data.is_paginated;
                 else if (key === 'records_per_page') selected.changed[key] = selected.meta_data.records_per_page;
             }
-            if (key === 'num_records') selected.meta_data.num_records = value as number;
+            if (key === 'num_records' && (value as number) >= selected.meta_data.records_per_page)
+                selected.meta_data.num_records = value as number;
             else if (key === 'is_paginated') selected.meta_data.is_paginated = value as boolean;
             else if (key === 'records_per_page' && (value as number) <= selected.meta_data.num_records)
                 selected.meta_data.records_per_page = value as number;

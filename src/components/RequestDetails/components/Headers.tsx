@@ -94,7 +94,7 @@ export const Headers = ({classes, fields, url_params}: Props) => {
                         </ListItem>
                     ))
                 ) : (
-                    <Typography>No fields added yet</Typography>
+                    <Typography>No headers added yet</Typography>
                 )}
             </List>
             <pre className={classes.schema}>{schemaHeader}</pre>
