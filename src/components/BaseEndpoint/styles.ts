@@ -33,7 +33,7 @@ const styles = makeStyles((_) => ({
     },
     btn: {
         display: 'block',
-        margin: 'auto',
+        margin: '10px auto',
     },
     expanded: {
         '&.Mui-expanded': {

@@ -98,8 +98,11 @@ const calculateSchema = (): any => {
         }
     }
     if (selectedEndpoint.meta_data.is_paginated) {
-        schema['page_num'] = 1;
-        schema['total_pages'] = Number(selectedEndpoint.meta_data.num_pages);
+        const paginatedSchema: any = {};
+        paginatedSchema['items'] = Array(Object.keys(schema).length ? selectedEndpoint.meta_data.records_per_page : 0).fill(schema);
+        paginatedSchema['page_no'] = 1;
+        paginatedSchema['total_pages'] = Math.ceil(Number(selectedEndpoint.meta_data.num_records) / Number(selectedEndpoint.meta_data.records_per_page));
+        return paginatedSchema;
     }
     return schema;
 };
@@ -169,11 +172,13 @@ const selectedEndpoints = createSlice({
             selected.isDirty = true;
             const {key, value} = action.payload;
             if (!(key in selected.changed)) {
-                if (key === 'num_pages') selected.changed[key] = selected.meta_data.num_pages;
+                if (key === 'num_records') selected.changed[key] = selected.meta_data.num_records;
                 else if (key === 'is_paginated') selected.changed[key] = selected.meta_data.is_paginated;
+                else if (key === 'records_per_page') selected.changed[key] = selected.meta_data.records_per_page
             }
-            if (key === 'num_pages') selected.meta_data.num_pages = value as number;
+            if (key === 'num_records') selected.meta_data.num_records = value as number;
             else if (key === 'is_paginated') selected.meta_data.is_paginated = value as boolean;
+            else if (key === 'records_per_page') selected.meta_data.records_per_page = value as number;
         },
         toggleUpdateEndpointLoading: (state: initialState, action: toggleUpdateLoadingPayload) => {
             const selected = state.endpoints.find((_) => _.id === state.selected);
@@ -187,8 +192,9 @@ const selectedEndpoints = createSlice({
             }
             if (selected.changed) {
                 for (let key in selected.changed) {
-                    if (key === 'num_pages') selected.meta_data.num_pages = selected.changed[key] as number;
+                    if (key === 'num_records') selected.meta_data.num_records = selected.changed[key] as number;
                     else if (key === 'is_paginated') selected.meta_data.is_paginated = selected.changed[key] as boolean;
+                    else if (key === 'records_per_page') selected.meta_data.records_per_page = selected.changed[key] as number;
                 }
             }
             selected.changed = {};

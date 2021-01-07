@@ -16,10 +16,16 @@ interface Props {
 export const MetaData = ({meta_data, classes}: Props) => {
     const dispatch = useDispatch();
     useEffect(() => {
-        if (!meta_data.is_paginated && meta_data.num_pages > 1) {
+        if (!meta_data.is_paginated && meta_data.num_records > 1) {
             dispatch(
                 updateMeta({
-                    key: 'num_pages',
+                    key: 'num_records',
+                    value: 1,
+                })
+            );
+            dispatch(
+                updateMeta({
+                    key: 'records_per_page',
                     value: 1,
                 })
             );
@@ -58,10 +64,18 @@ export const MetaData = ({meta_data, classes}: Props) => {
             </div>
             <TextField
                 disabled={!meta_data.is_paginated}
-                onChange={(e) => handleChange(e, 'num_pages')}
-                id="num_pages"
-                value={meta_data.num_pages}
-                label="Number of pages"
+                onChange={(e) => handleChange(e, 'num_records')}
+                id="num_records"
+                value={meta_data.num_records}
+                label="Total number of records"
+                variant="outlined"
+            />
+            <TextField
+                disabled={!meta_data.is_paginated}
+                onChange={(e) => handleChange(e, 'records_per_page')}
+                id="records_per_page"
+                value={meta_data.records_per_page}
+                label="Records per page"
                 variant="outlined"
             />
         </div>

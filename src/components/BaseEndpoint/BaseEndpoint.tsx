@@ -7,6 +7,8 @@ import {getBaseEndPoints, addBaseEndpoint} from '../../reducers/baseEndpoints';
 import {Loader} from '../Loader';
 import {SingleBaseEndpoint} from './singleBaseEndpoint';
 import {CreateSchema} from '../CreateSchema';
+import {get, isError} from '../../requests'
+import { addNotif } from '../../reducers/notifications';
 
 export const BaseEndpoint = () => {
     const dispatch = useDispatch();
@@ -33,6 +35,27 @@ export const BaseEndpoint = () => {
         if (endpoint[0] !== '/') endpoint = '/' + endpoint;
         dispatch(addBaseEndpoint(endpoint));
     };
+    const exportData = async () => {
+        const resp = await get('data/export/', dispatch);
+        if (!isError(resp)) {
+            // https://stackoverflow.com/a/30800715
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(resp));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "mock-server-data.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+
+            dispatch(addNotif({
+                variant: 'success',
+                text: 'json file successfully downloaded'
+            }))
+        }
+    }
+    const importData = () => {
+        
+    }
     return (
         <>
             <Paper elevation={3} className={classes.root}>
@@ -69,6 +92,22 @@ export const BaseEndpoint = () => {
                     ) : (
                         <Typography className={classes.emptyBaseEndpoints}>No base endpoints added yet.</Typography>
                     )}
+                    <div className={classes.newBaseEndpointBtnDiv}>
+                        <Button
+                            className={classes.btn}
+                            color="primary"
+                            variant="contained"
+                            onClick={exportData}>
+                            Export data
+                        </Button>
+                        <Button
+                            className={classes.btn}
+                            color="primary"
+                            variant="contained"
+                            onClick={importData}>
+                            Import data
+                        </Button>
+                    </div>
                 </div>
             </Paper>
             {open && (

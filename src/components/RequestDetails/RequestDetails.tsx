@@ -58,7 +58,7 @@ export const RequestDetails = () => {
                 id: selectedEndpoint.id,
             })
         );
-    };
+    };    
     return (
         <div className={classes.root}>
             <div className={classes.header}>
@@ -93,7 +93,6 @@ export const RequestDetails = () => {
                 classes={classes}
                 fields={selectedEndpoint.fields}
             />
-            <pre className={classes.schema}>{schema}</pre>
             <MetaData meta_data={selectedEndpoint.meta_data} classes={classes} />
             <div className={classes.saveBtn}>
                 <Button disabled={!selectedEndpoint.isDirty} variant="contained" color="primary" onClick={saveSchema}>
@@ -107,6 +106,7 @@ export const RequestDetails = () => {
                     Discard
                 </Button>
             </div>
+            <pre className={classes.schema}>{schema}</pre>
             {/* <Headers /> */}
         </div>
     );

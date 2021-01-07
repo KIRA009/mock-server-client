@@ -67,7 +67,8 @@ export const SingleBaseEndpoint = ({endpoint, classes, endpointId}: Props) => {
                 fields: [],
                 baseEndpoint: endpoint,
                 meta_data: {
-                    num_pages: 1,
+                    num_records: 1,
+                    records_per_page: 1,
                     is_paginated: false,
                 },
                 regex_endpoint: '',

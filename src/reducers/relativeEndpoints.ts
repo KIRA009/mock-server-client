@@ -8,8 +8,9 @@ import {addNotif} from './notifications';
 export type methods = 'GET' | 'POST' | 'PUT';
 
 export interface metaData {
-    num_pages: number;
+    num_records: number;
     is_paginated: boolean;
+    records_per_page: number;
 }
 
 export interface endpointInterface {
