@@ -17,6 +17,7 @@ export interface metaData {
     num_records: number;
     is_paginated: boolean;
     records_per_page: number;
+    oldValues?: any;
 }
 
 export interface endpointInterface {
@@ -26,15 +27,14 @@ export interface endpointInterface {
     base_endpoint: number;
     id: number;
     fields: Field[];
-    headerFields: HeaderField[];
+    headers: HeaderField[];
     baseEndpoint: string;
     meta_data: metaData;
-    changed?: any;
     url_params: string[];
     isUpdating?: boolean;
     isDirty?: boolean;
     deleted?: Field[];
-    deletedHeader?: HeaderField[];
+    deletedHeaders?: HeaderField[];
 }
 
 interface initialState {

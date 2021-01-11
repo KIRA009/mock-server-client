@@ -3,7 +3,7 @@ import {makeStyles} from '@material-ui/core';
 const styles = makeStyles((_) => ({
     root: {
         borderRight: '1px solid black',
-        height: '100vh',
+        height: '100%',
     },
     baseEndpoint: {
         backgroundColor: 'rgba(0, 0, 0, 0.1)',

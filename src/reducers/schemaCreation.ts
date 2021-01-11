@@ -62,8 +62,10 @@ const calculateSchema = (): any => {
             schema[field.key] = field.value;
         } else if (field.type === 'url_param') {
             schema[field.key] = `{{urlParam '${field.value}'}}`;
-        } else {
+        } else if (field.type === 'query_param') {
             schema[field.key] = `{{queryParam '${field.value}'}}`;
+        } else {
+            schema[field.key] = `{{postData '${field.value}'}}`;
         }
         if (field.is_array) {
             const temp = new Array(5);

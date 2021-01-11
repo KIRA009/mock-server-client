@@ -20,10 +20,9 @@ export interface Field {
 export interface HeaderField {
     key: string;
     value: any;
-    id: number;
-    is_array: boolean;
     isChanged: boolean;
     oldValues?: any;
+    isNew?: boolean;
 }
 
 interface toggleUpdateLoadingPayload {
@@ -35,7 +34,6 @@ interface initialState {
     selected: number;
     endpoints: endpointInterface[];
     schema: string;
-    schemaHeader: string;
 }
 
 interface getEndpointPayload {
@@ -122,12 +120,14 @@ const calculateSchema = (): any => {
             schema[field.key] = field.value;
         } else if (field.type === 'url_param') {
             schema[field.key] = `{{urlParam '${field.value}'}}`;
-        } else {
+        } else if (field.type === 'query_param') {
+            console.log(field);
             schema[field.key] = `{{queryParam '${field.value}'}}`;
+        } else {
+            schema[field.key] = `{{postData '${field.value}'}}`;
         }
         if (field.is_array) {
-            const temp = new Array(5);
-            temp.fill(schema[field.key], 0, 5);
+            const temp = new Array(5).fill(schema[field.key]);
             schema[field.key] = temp;
         }
     }
@@ -144,18 +144,6 @@ const calculateSchema = (): any => {
     }
     return schema;
 };
-const calculateSchemaHeader = (): any => {
-    const state: RootState = store.getState();
-    const selectedEndpointId: number = state.selectedEndpoints.selected;
-    const selectedEndpoint = state.selectedEndpoints.endpoints.find((_) => _.id === selectedEndpointId);
-    const headerFields = selectedEndpoint.headerFields;
-    const schemaHeader: any = {};
-
-    for (let headerField of headerFields) {
-        schemaHeader[headerField.key] = headerField.value;
-    }
-    return schemaHeader;
-};
 
 const getSelected = (state: initialState) => state.endpoints.find((_) => _.id === state.selected);
 
@@ -165,19 +153,19 @@ const selectedEndpoints = createSlice({
         selected: 0,
         endpoints: [],
         schema: '{}',
-        schemaHeader: '{}',
     } as initialState,
     reducers: {
         setSelectedEndpoint: (state: initialState, action: getEndpointPayload) => {
-            const selected = action.payload;
-            let endpoint = state.endpoints.find((_) => _.id === action.payload.id);
+            let selected = action.payload;
+            let endpoint = state.endpoints.find((_) => _.id === selected.id);
             if (!endpoint) {
-                selected.changed = {};
-                selected.isDirty = false;
-                selected.deleted = [];
-                selected.headerFields = []; //Now setting it default to empty array
-
-                state.endpoints.push(selected);
+                // if endpoint is selected for first time
+                endpoint = JSON.parse(JSON.stringify(selected));
+                endpoint.meta_data.oldValues = {};
+                endpoint.isDirty = false;
+                endpoint.deleted = [];
+                endpoint.deletedHeaders = [];
+                state.endpoints.push(endpoint);
             } else {
                 endpoint.method = action.payload.method;
                 endpoint.endpoint = action.payload.endpoint;
@@ -201,14 +189,14 @@ const selectedEndpoints = createSlice({
         updateHeaderField: (state: initialState, action: updateHeaderFieldPayload) => {
             const {index, type, newValue} = action.payload;
             const selected = getSelected(state);
-            const headerField = selected.headerFields[index];
+            const headerField = selected.headers[index];
             const oldValue = headerField[type];
             headerField[type] = newValue;
-            if (headerField.id > 0 && !headerField.isChanged) {
+            if (!headerField.isChanged) {
                 headerField.isChanged = true;
                 headerField.oldValues = {};
             }
-            if (headerField.id > 0 && !(type in headerField.oldValues)) headerField.oldValues[type] = oldValue;
+            if (!(type in headerField.oldValues)) headerField.oldValues[type] = oldValue;
             selected.isDirty = true;
         },
         addField: (state: initialState, action: addFieldPayload) => {
@@ -219,9 +207,9 @@ const selectedEndpoints = createSlice({
             }
         },
         addHeaderField: (state: initialState, action: addHeaderFieldPayload) => {
-            if (!getSelected(state).headerFields?.some((_) => matchHeaderField(_, action.payload))) {
+            if (!getSelected(state).headers?.some((_) => matchHeaderField(_, action.payload))) {
                 const selected = getSelected(state);
-                selected.headerFields?.push(action.payload);
+                selected.headers?.push(action.payload);
                 selected.isDirty = true;
             }
         },
@@ -234,17 +222,13 @@ const selectedEndpoints = createSlice({
         },
         deleteHeaderField: (state: initialState, action: deleteHeaderFieldPayload) => {
             const endpoint = getSelected(state);
-            const headerField: HeaderField = endpoint.headerFields.splice(action.payload, 1)[0];
+            const headerField: HeaderField = endpoint.headers.splice(action.payload, 1)[0];
             endpoint.isDirty = true;
-            if (headerField.id === 0) return;
-            endpoint.deletedHeader.push(headerField);
+            endpoint.deletedHeaders.push(headerField);
         },
 
         updateSchema: (state: initialState, action: updateSchemaPayload) => {
             state.schema = JSON.stringify(action.payload, null, 4);
-        },
-        updateSchemaHeader: (state: initialState, action: updateSchemaPayload) => {
-            state.schemaHeader = JSON.stringify(action.payload, null, 4);
         },
         setFields: (state: initialState, action: setFieldsPayload) => {
             const selected = getSelected(state);
@@ -253,17 +237,18 @@ const selectedEndpoints = createSlice({
         },
         setHeaderFields: (state: initialState, action: setHeaderFieldsPayload) => {
             const selected = getSelected(state);
-            selected.headerFields = action.payload;
+            selected.headers = action.payload;
             selected.isDirty = false;
         },
         updateMeta: (state: initialState, action: metaDataPayload) => {
             const selected = getSelected(state);
             selected.isDirty = true;
             const {key, value} = action.payload;
-            if (!(key in selected.changed)) {
-                if (key === 'num_records') selected.changed[key] = selected.meta_data.num_records;
-                else if (key === 'is_paginated') selected.changed[key] = selected.meta_data.is_paginated;
-                else if (key === 'records_per_page') selected.changed[key] = selected.meta_data.records_per_page;
+            if (!(key in selected.meta_data.oldValues)) {
+                if (key === 'num_records') selected.meta_data.oldValues[key] = selected.meta_data.num_records;
+                else if (key === 'is_paginated') selected.meta_data.oldValues[key] = selected.meta_data.is_paginated;
+                else if (key === 'records_per_page')
+                    selected.meta_data.oldValues[key] = selected.meta_data.records_per_page;
             }
             if (key === 'num_records' && (value as number) >= selected.meta_data.records_per_page)
                 selected.meta_data.num_records = value as number;
@@ -277,19 +262,12 @@ const selectedEndpoints = createSlice({
         },
         discardChanges: (state: initialState, action) => {
             const selected = getSelected(state);
+
             selected.fields = selected.fields.filter((_) => _.id > 0);
             for (let field of selected.deleted) {
                 selected.fields.push(field);
             }
-            if (selected.changed) {
-                for (let key in selected.changed) {
-                    if (key === 'num_records') selected.meta_data.num_records = selected.changed[key] as number;
-                    else if (key === 'is_paginated') selected.meta_data.is_paginated = selected.changed[key] as boolean;
-                    else if (key === 'records_per_page')
-                        selected.meta_data.records_per_page = selected.changed[key] as number;
-                }
-            }
-            selected.changed = {};
+            selected.deleted = [];
             const fields = selected.fields;
             for (let field of fields) {
                 if (field.isChanged) {
@@ -297,14 +275,42 @@ const selectedEndpoints = createSlice({
                     if ('type' in field.oldValues) field.type = field.oldValues.type;
                     if ('value' in field.oldValues) field.value = field.oldValues.value;
                     if ('is_array' in field.oldValues) field.is_array = field.oldValues.is_array;
+                    field.isChanged = false;
+                    field.oldValues = {};
                 }
             }
-            selected.deleted = [];
+
+            selected.headers = selected.headers.filter((_) => !_.isNew);
+            for (let header of selected.deletedHeaders) {
+                selected.headers.push(header);
+            }
+            selected.deletedHeaders = [];
+            for (let header of selected.headers) {
+                if (header.isChanged) {
+                    if ('key' in header.oldValues) header.key = header.oldValues.key;
+                    if ('value' in header.oldValues) header.value = header.oldValues.value;
+                    header.isChanged = false;
+                    header.oldValues = {};
+                }
+            }
+
+            if (selected.meta_data.oldValues) {
+                for (let key in selected.meta_data.oldValues) {
+                    if (key === 'num_records')
+                        selected.meta_data.num_records = selected.meta_data.oldValues[key] as number;
+                    else if (key === 'is_paginated')
+                        selected.meta_data.is_paginated = selected.meta_data.oldValues[key] as boolean;
+                    else if (key === 'records_per_page')
+                        selected.meta_data.records_per_page = selected.meta_data.oldValues[key] as number;
+                }
+            }
+            selected.meta_data.oldValues = {};
+
             selected.isDirty = false;
         },
         saveChanges: (state: initialState, action) => {
             const selected = state.endpoints.find((_) => _.id === state.selected);
-            selected.changed = {};
+            selected.meta_data.oldValues = {};
         },
         resetSelectedEndpoint: (state: initialState, action) => {
             state.selected = 0;
@@ -319,7 +325,6 @@ export const {toggleUpdateEndpointLoading, resetSelectedEndpoint} = selectedEndp
 export const setSelectedEndpoint = (payload: endpointInterface): AppThunk => (dispatch: any) => {
     dispatch(selectedEndpoints.actions.setSelectedEndpoint(payload));
     dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
-    dispatch(selectedEndpoints.actions.updateSchemaHeader(calculateSchemaHeader()));
 };
 
 export const addField = (payload: Field): AppThunk => (dispatch: any) => {
@@ -328,7 +333,6 @@ export const addField = (payload: Field): AppThunk => (dispatch: any) => {
 };
 export const addHeaderField = (payload: HeaderField): AppThunk => (dispatch: any) => {
     dispatch(selectedEndpoints.actions.addHeaderField(payload));
-    dispatch(selectedEndpoints.actions.updateSchemaHeader(calculateSchemaHeader()));
 };
 
 export const updateField = (payload: {type: FieldProps; newValue: string; index: number}): AppThunk => (
@@ -341,7 +345,6 @@ export const updateHeaderField = (payload: {type: HeaderFieldProps; newValue: st
     dispatch: any
 ) => {
     dispatch(selectedEndpoints.actions.updateHeaderField(payload));
-    dispatch(selectedEndpoints.actions.updateSchemaHeader(calculateSchemaHeader()));
 };
 
 export const deleteField = (payload: number): AppThunk => (dispatch: any) => {
@@ -350,7 +353,6 @@ export const deleteField = (payload: number): AppThunk => (dispatch: any) => {
 };
 export const deleteHeaderField = (payload: number): AppThunk => (dispatch: any) => {
     dispatch(selectedEndpoints.actions.deleteHeaderField(payload));
-    dispatch(selectedEndpoints.actions.updateSchemaHeader(calculateSchemaHeader()));
 };
 
 export const discard = (dispatch: any) => {
@@ -361,7 +363,6 @@ export const discard = (dispatch: any) => {
 export const getSelectedEndpoint = (state: RootState) => ({
     selectedEndpoint: state.selectedEndpoints.endpoints.find((_) => _.id === state.selectedEndpoints.selected),
     schema: state.selectedEndpoints.schema,
-    schemaHeader: state.selectedEndpoints.schemaHeader,
 });
 
 export const save = (): AppThunk => async (dispatch) => {
@@ -369,7 +370,7 @@ export const save = (): AppThunk => async (dispatch) => {
     const selected = state.selectedEndpoints.endpoints.find((_) => _.id === state.selectedEndpoints.selected);
     const resp = await post('update_schema/', dispatch, {
         fields: selected.fields,
-        headerFields: selected.headerFields,
+        headers: selected.headers,
         id: selected.id,
         meta_data: selected.meta_data,
     });
@@ -395,5 +396,4 @@ export const updateMeta = (payload: {key: string; value: number | boolean}): App
         })
     );
     dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
-    dispatch(selectedEndpoints.actions.updateSchemaHeader(calculateSchemaHeader()));
 };

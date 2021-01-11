@@ -88,11 +88,7 @@ export const RequestDetails = () => {
                     <DeleteIcon />
                 </IconButton>
             </div>
-            <Headers
-                url_params={selectedEndpoint.url_params}
-                classes={classes}
-                fields={selectedEndpoint.headerFields}
-            />
+            <Headers classes={classes} fields={selectedEndpoint.headers} />
             <Divider className={classes.divider} />
             <CreateResponse
                 url_params={selectedEndpoint.url_params}

@@ -20,12 +20,12 @@ export const ValueField = React.memo(({type, value, update, ind, classes, url_pa
     const values = useSelector(getValues);
     return (
         <FormControl>
-            {type === 'query_param' ? (
+            {type === 'query_param' || type === 'post_data' ? (
                 <TextField
                     label="Name"
-                    value={value}
                     variant="outlined"
-                    onChange={(e: any) => update(e.target.value, 'value', ind)}
+                    defaultValue={value}
+                    onChange={(e) => update(e.target.value, 'value', ind)}
                 />
             ) : (
                 <>

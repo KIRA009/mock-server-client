@@ -35,7 +35,7 @@ interface Props {
 }
 
 export const CreateResponse = React.memo(({classes, fields, url_params}: Props) => {
-    const {schema} = useSelector(getSelectedEndpoint);
+    const {schema, selectedEndpoint} = useSelector(getSelectedEndpoint);
     const dispatch = useDispatch();
     let debounce: NodeJS.Timeout;
     const update = (newValue: any, type: string, index: number) => {
@@ -97,15 +97,18 @@ export const CreateResponse = React.memo(({classes, fields, url_params}: Props) 
                                     <MenuItem value={'schema'}>Schema</MenuItem>
                                     <MenuItem value={'url_param'}>Url Param</MenuItem>
                                     <MenuItem value={'query_param'}>Query Param</MenuItem>
+                                    {selectedEndpoint.method === 'POST' && (
+                                        <MenuItem value={'post_data'}>POST Data</MenuItem>
+                                    )}
                                 </Select>
                             </FormControl>
                             <ValueField key={ind} {...{type, value, update, ind, classes, url_params}} />
-                            <FormControlLabel
+                            {/* <FormControlLabel
                                 control={
                                     <Switch checked={is_array} onChange={() => update(!is_array, 'is_array', ind)} />
                                 }
                                 label="(Is array)"
-                            />
+                            /> */}
                             <IconButton
                                 aria-label=""
                                 color="primary"

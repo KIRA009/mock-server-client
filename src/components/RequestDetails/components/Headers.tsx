@@ -11,19 +11,15 @@ import {
     addHeaderField,
     deleteHeaderField,
 } from '../../../reducers/selectedEndpoints';
-import {useSelector} from 'react-redux';
-import {getSelectedEndpoint} from '../../../reducers/selectedEndpoints';
 
 interface Props {
     classes: {
         [key: string]: string;
     };
     fields: HeaderField[];
-    url_params: string[];
 }
 
-export const Headers = ({classes, fields, url_params}: Props) => {
-    const {schemaHeader} = useSelector(getSelectedEndpoint);
+export const Headers = ({classes, fields}: Props) => {
     const dispatch = useDispatch();
     let debounce: NodeJS.Timeout;
     const update = (newValue: any, type: string, index: number) => {
@@ -44,9 +40,8 @@ export const Headers = ({classes, fields, url_params}: Props) => {
             addHeaderField({
                 key: new Date().getTime().toString(),
                 value: new Date().getTime().toString(),
-                id: 0,
                 isChanged: false,
-                is_array: false,
+                isNew: true,
             })
         );
     };
@@ -62,7 +57,7 @@ export const Headers = ({classes, fields, url_params}: Props) => {
             </IconButton>
             <List component="nav" aria-label="fields">
                 {fields?.length ? (
-                    fields.map(({key, value, is_array}, ind) => (
+                    fields.map(({key, value}, ind) => (
                         <ListItem key={`${key}-${ind}`} className={classes.listItem}>
                             <FormControl>
                                 <TextField
@@ -97,7 +92,6 @@ export const Headers = ({classes, fields, url_params}: Props) => {
                     <Typography>No headers added yet</Typography>
                 )}
             </List>
-            <pre className={classes.schema}>{schemaHeader}</pre>
         </div>
     );
 };
