@@ -64,14 +64,20 @@ export const SingleBaseEndpoint = ({endpoint, classes, endpointId}: Props) => {
                 method,
                 base_endpoint: endpointId,
                 id: 0,
-                fields: [],
-                headers: [],
+                status_codes: [
+                    {
+                        id: 0,
+                        status_code: 200,
+                        fields: [],
+                        headers: [],
+                        meta_data: {
+                            num_records: 1,
+                            records_per_page: 1,
+                            is_paginated: false,
+                        },
+                    },
+                ],
                 baseEndpoint: endpoint,
-                meta_data: {
-                    num_records: 1,
-                    records_per_page: 1,
-                    is_paginated: false,
-                },
                 regex_endpoint: '',
                 url_params: [],
             })

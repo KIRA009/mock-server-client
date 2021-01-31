@@ -15,7 +15,7 @@ const styles = makeStyles((theme) => ({
             padding: 10,
         },
         alignItems: 'center',
-        '& div:nth-child(2)': {
+        '& div:nth-child(2), div:nth-child(3)': {
             alignSelf: 'start',
         },
         '& svg': {

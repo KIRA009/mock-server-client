@@ -6,7 +6,7 @@ import styles from './styles';
 import {getBaseEndPoints, addBaseEndpoint} from '../../reducers/baseEndpoints';
 import {Loader} from '../Loader';
 import {SingleBaseEndpoint} from './singleBaseEndpoint';
-import {CreateSchema} from '../CreateSchema';
+import {Schema} from '../Schema';
 import {get, post, isError} from '../../requests';
 import {addNotif} from '../../reducers/notifications';
 
@@ -106,7 +106,7 @@ export const BaseEndpoint = () => {
                             color="primary"
                             variant="contained"
                             onClick={() => setOpenSchema(true)}>
-                            Add new Schema
+                            Schemas
                         </Button>
                     </div>
                     {loading ? (
@@ -162,14 +162,7 @@ export const BaseEndpoint = () => {
                     </DialogContent>
                 </Dialog>
             )}
-            {openSchema && (
-                <Dialog maxWidth="xl" open={openSchema} onClose={handleClose}>
-                    <DialogTitle id="alert-dialog-slide-title">New Schema</DialogTitle>
-                    <DialogContent>
-                        <CreateSchema />
-                    </DialogContent>
-                </Dialog>
-            )}
+            {openSchema && <Schema openSchema={openSchema} handleClose={handleClose} />}
             {openImport && (
                 <Dialog open={openImport} onClose={handleClose}>
                     <DialogTitle id="alert-dialog-slide-title">Import data</DialogTitle>

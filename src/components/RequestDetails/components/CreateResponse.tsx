@@ -9,8 +9,6 @@ import {
     TextField,
     IconButton,
     Typography,
-    FormControlLabel,
-    Switch,
 } from '@material-ui/core';
 import {useSelector, useDispatch} from 'react-redux';
 import AddCircleIcon from '@material-ui/icons/AddCircle';

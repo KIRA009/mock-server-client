@@ -14,7 +14,7 @@ export interface Field {
     value: any;
     id: number;
     is_array: boolean;
-    isChanged: boolean;
+    isChanged?: boolean;
     oldValues?: any;
 }
 export interface HeaderField {
@@ -32,6 +32,7 @@ interface toggleUpdateLoadingPayload {
 
 interface initialState {
     selected: number;
+    selectedIndex: number;
     endpoints: endpointInterface[];
     schema: string;
 }
@@ -109,7 +110,10 @@ const matchHeaderField = (field1: HeaderField, field2: HeaderField): boolean => 
 const calculateSchema = (): any => {
     const state: RootState = store.getState();
     const selectedEndpointId: number = state.selectedEndpoints.selected;
-    const selectedEndpoint = state.selectedEndpoints.endpoints.find((_) => _.id === selectedEndpointId);
+    const selectedEndpoint = state.selectedEndpoints.endpoints.find((_) => _.id === selectedEndpointId).status_codes[
+        state.selectedEndpoints.selectedIndex
+    ];
+    // const selectedIndex = state.selectedEndpoints.selectedIndex;
     const fields = selectedEndpoint.fields;
     const schema: any = {};
     const schemas = state.possibleValues.schemas;
@@ -145,12 +149,14 @@ const calculateSchema = (): any => {
     return schema;
 };
 
-const getSelected = (state: initialState) => state.endpoints.find((_) => _.id === state.selected);
+const getSelected = (state: initialState) =>
+    state.endpoints.find((_) => _.id === state.selected).status_codes[state.selectedIndex];
 
 const selectedEndpoints = createSlice({
     name: 'selectedEndpoints',
     initialState: {
         selected: 0,
+        selectedIndex: 0,
         endpoints: [],
         schema: '{}',
     } as initialState,
@@ -158,13 +164,14 @@ const selectedEndpoints = createSlice({
         setSelectedEndpoint: (state: initialState, action: getEndpointPayload) => {
             let selected = action.payload;
             let endpoint = state.endpoints.find((_) => _.id === selected.id);
+            const selectedIndex = state.selectedIndex;
             if (!endpoint) {
                 // if endpoint is selected for first time
                 endpoint = JSON.parse(JSON.stringify(selected));
-                endpoint.meta_data.oldValues = {};
-                endpoint.isDirty = false;
-                endpoint.deleted = [];
-                endpoint.deletedHeaders = [];
+                endpoint.status_codes[selectedIndex].meta_data.oldValues = {};
+                endpoint.status_codes[selectedIndex].isDirty = false;
+                endpoint.status_codes[selectedIndex].deleted = [];
+                endpoint.status_codes[selectedIndex].deletedHeaders = [];
                 state.endpoints.push(endpoint);
             } else {
                 endpoint.method = action.payload.method;
@@ -309,7 +316,7 @@ const selectedEndpoints = createSlice({
             selected.isDirty = false;
         },
         saveChanges: (state: initialState, action) => {
-            const selected = state.endpoints.find((_) => _.id === state.selected);
+            const selected = getSelected(state);
             selected.meta_data.oldValues = {};
         },
         resetSelectedEndpoint: (state: initialState, action) => {
@@ -360,19 +367,24 @@ export const discard = (dispatch: any) => {
     dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
 };
 
-export const getSelectedEndpoint = (state: RootState) => ({
-    selectedEndpoint: state.selectedEndpoints.endpoints.find((_) => _.id === state.selectedEndpoints.selected),
-    schema: state.selectedEndpoints.schema,
-});
+export const getSelectedEndpoint = (state: RootState) => {
+    const selectedEndpoint = state.selectedEndpoints.endpoints.find((_) => _.id === state.selectedEndpoints.selected);
+    return {
+        selectedEndpoint,
+        selectedStatus: selectedEndpoint?.status_codes[state.selectedEndpoints.selectedIndex],
+        schema: state.selectedEndpoints.schema,
+    };
+};
 
 export const save = (): AppThunk => async (dispatch) => {
     const state: RootState = store.getState();
-    const selected = state.selectedEndpoints.endpoints.find((_) => _.id === state.selectedEndpoints.selected);
-    const resp = await post('update_schema/', dispatch, {
+    const selected = getSelected(state.selectedEndpoints);
+    const {oldValues, ...meta_data} = selected.meta_data;
+    const resp = await post('relative-endpoint/schema/update/', dispatch, {
         fields: selected.fields,
         headers: selected.headers,
         id: selected.id,
-        meta_data: selected.meta_data,
+        meta_data,
     });
     if (!isError(resp)) {
         dispatch(selectedEndpoints.actions.setFields(resp.fields));

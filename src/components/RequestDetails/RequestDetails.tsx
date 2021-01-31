@@ -9,11 +9,12 @@ import styles from './styles';
 import {CreateResponse} from './components/CreateResponse';
 import {Headers} from './components/Headers';
 import {MetaData} from './components/MetaData';
+import {StatusCode} from './components/StatusCode';
 import {save, discard} from '../../reducers/selectedEndpoints';
 import {methods, updateRelativeEndpoint, deleteRelativeEndpoint} from '../../reducers/relativeEndpoints';
 
 export const RequestDetails = () => {
-    const {selectedEndpoint} = useSelector(getSelectedEndpoint);
+    const {selectedEndpoint, selectedStatus} = useSelector(getSelectedEndpoint);
     const classes = styles();
     const dispatch = useDispatch();
     const [relativeEndpoint, setRelativeEndpoint] = useState('');
@@ -30,7 +31,7 @@ export const RequestDetails = () => {
         return <div className={classes.selectEndpointBanner}>Select an endpoint</div>;
     }
     const saveSchema = () => {
-        if (selectedEndpoint.isDirty) dispatch(save());
+        if (selectedStatus.isDirty) dispatch(save());
     };
     const discardChanges = () => {
         dispatch(discard);
@@ -88,25 +89,27 @@ export const RequestDetails = () => {
                     <DeleteIcon />
                 </IconButton>
             </div>
-            <Headers classes={classes} fields={selectedEndpoint.headers} />
-            <Divider className={classes.divider} />
-            <CreateResponse
-                url_params={selectedEndpoint.url_params}
+            <StatusCode
                 classes={classes}
-                fields={selectedEndpoint.fields}
+                selectedStatusCode={selectedStatus.status_code}
+                handleChange={handleChange}
+                selectedEndpoint={selectedEndpoint}
             />
+            <Headers classes={classes} fields={selectedEndpoint.status_codes[0].headers} />
+            <Divider className={classes.divider} />
+            <CreateResponse url_params={selectedEndpoint.url_params} classes={classes} fields={selectedStatus.fields} />
             <Divider className={classes.divider} />
 
-            <MetaData meta_data={selectedEndpoint.meta_data} classes={classes} />
+            <MetaData meta_data={selectedStatus.meta_data} classes={classes} />
 
             <div className={classes.saveBtn}>
-                <Button disabled={!selectedEndpoint.isDirty} variant="contained" color="primary" onClick={saveSchema}>
+                <Button disabled={!selectedStatus.isDirty} variant="contained" color="primary" onClick={saveSchema}>
                     Save
                 </Button>
                 <Button
-                    disabled={!selectedEndpoint.isDirty}
+                    disabled={!selectedStatus.isDirty}
                     variant="contained"
-                    color="primary"
+                    color="secondary"
                     onClick={discardChanges}>
                     Discard
                 </Button>

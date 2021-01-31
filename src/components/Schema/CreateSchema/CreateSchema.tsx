@@ -2,11 +2,11 @@ import React from 'react';
 import {Button, TextField} from '@material-ui/core';
 import {useSelector, useDispatch} from 'react-redux';
 
-import {changeName, getSelectedSchema} from '../../reducers/schemaCreation';
+import {changeName, getSelectedSchema} from '../../../reducers/schemaCreation';
 import styles from './styles';
 import {CreateResponse} from './components/CreateResponse';
 
-import {save} from '../../reducers/schemaCreation';
+import {save} from '../../../reducers/schemaCreation';
 
 export const CreateSchema = () => {
     const classes = styles();
@@ -26,12 +26,18 @@ export const CreateSchema = () => {
                         id="outlined-basic"
                         label="Schema name"
                         variant="outlined"
+                        value={selectedSchema.name}
                         onChange={(e) => {
                             dispatch(changeName(e.target.value));
                         }}
                     />
                 </div>
-                <CreateResponse url_params={['name']} classes={classes} fields={selectedSchema.fields} />
+                <CreateResponse
+                    schemaId={selectedSchema.id}
+                    url_params={['name']}
+                    classes={classes}
+                    fields={selectedSchema.fields}
+                />
                 <pre className={classes.schema}>{schema}</pre>
                 <div className={classes.saveBtn}>
                     <Button disabled={!selectedSchema.isDirty} variant="contained" color="primary" onClick={saveSchema}>

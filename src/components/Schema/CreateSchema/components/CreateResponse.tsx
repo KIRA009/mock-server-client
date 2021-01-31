@@ -16,8 +16,8 @@ import {useDispatch} from 'react-redux';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/Delete';
 
-import {addField, updateField, deleteField} from '../../../reducers/schemaCreation';
-import {Field, FieldProps} from '../../../reducers/selectedEndpoints';
+import {addField, updateField, deleteField} from '../../../../reducers/schemaCreation';
+import {Field, FieldProps} from '../../../../reducers/selectedEndpoints';
 import {ValueField} from './ValueField';
 
 interface Props {
@@ -26,9 +26,10 @@ interface Props {
     };
     fields: Field[];
     url_params: string[];
+    schemaId: number;
 }
 
-export const CreateResponse = React.memo(({classes, fields, url_params}: Props) => {
+export const CreateResponse = React.memo(({classes, fields, url_params, schemaId}: Props) => {
     const dispatch = useDispatch();
     let debounce: NodeJS.Timeout;
     const update = (newValue: any, type: string, index: number) => {
@@ -89,7 +90,7 @@ export const CreateResponse = React.memo(({classes, fields, url_params}: Props) 
                                     <MenuItem value={'schema'}>Schema</MenuItem>
                                 </Select>
                             </FormControl>
-                            <ValueField key={ind} {...{type, value, update, ind, classes, url_params}} />
+                            <ValueField key={ind} {...{type, value, update, ind, classes, url_params, schemaId}} />
                             <FormControlLabel
                                 control={
                                     <Switch checked={is_array} onChange={() => update(!is_array, 'is_array', ind)} />

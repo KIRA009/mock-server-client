@@ -26,15 +26,19 @@ export interface endpointInterface {
     method: methods;
     base_endpoint: number;
     id: number;
-    fields: Field[];
-    headers: HeaderField[];
     baseEndpoint: string;
-    meta_data: metaData;
     url_params: string[];
+    status_codes: {
+        id: number;
+        status_code: number;
+        fields: Field[];
+        headers: HeaderField[];
+        meta_data: metaData;
+        isDirty?: boolean;
+        deleted?: Field[];
+        deletedHeaders?: HeaderField[];
+    }[];
     isUpdating?: boolean;
-    isDirty?: boolean;
-    deleted?: Field[];
-    deletedHeaders?: HeaderField[];
 }
 
 interface initialState {

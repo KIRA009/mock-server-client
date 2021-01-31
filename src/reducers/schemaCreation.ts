@@ -4,8 +4,8 @@ import {store} from '../index';
 
 import {Field, FieldProps} from './selectedEndpoints';
 import {addNotif} from './notifications';
-import {post, isError} from '../requests';
-import {addSchema} from './possibleValues';
+import {get, post, isError} from '../requests';
+import {addSchema, updateSchema} from './possibleValues';
 
 export interface schemaInterface {
     name: string;
@@ -49,6 +49,11 @@ interface updateSchemaPayload {
     payload: any;
 }
 
+interface loadSchemaPayload {
+    type: string;
+    payload: schemaInterface;
+}
+
 const calculateSchema = (): any => {
     const state: RootState = store.getState();
     const selectedEndpoint = state.schemaCreation.schema;
@@ -83,6 +88,7 @@ const schemaCreation = createSlice({
         addSchemaLoading: false,
         schema: {
             fields: [],
+            id: 0,
             name: 'New schema',
         },
     } as initialState,
@@ -116,8 +122,21 @@ const schemaCreation = createSlice({
         updateSchema: (state: initialState, action: updateSchemaPayload) => {
             state.schemaAsText = JSON.stringify(action.payload, null, 4);
         },
+        loadSchema: (state: initialState, action: loadSchemaPayload) => {
+            state.schema = action.payload;
+        },
+        clearSchema: (state: initialState, action: updateSchemaPayload) => {
+            state.schema = {
+                fields: [],
+                id: 0,
+                name: 'New schema',
+            } as schemaInterface;
+            state.schemaAsText = '{}';
+        },
     },
 });
+
+export const {clearSchema} = schemaCreation.actions;
 
 export default schemaCreation.reducer;
 
@@ -145,9 +164,31 @@ export const save = (): AppThunk => async (dispatch) => {
     const state: RootState = store.getState();
     const selected = state.schemaCreation.schema;
 
-    const resp = await post('schema/add/', dispatch, {name: selected.name, fields: selected.fields});
+    const data = {
+        name: selected.name,
+        fields: selected.fields.map((item) => {
+            const {oldValues, ...newItem} = item;
+            return newItem;
+        }),
+    } as any;
+
+    const isNew: boolean = selected.id === 0;
+    const url: string = isNew ? 'schema/add/' : 'schema/update/';
+
+    if (!isNew) data.id = selected.id;
+
+    const resp = await post(url, dispatch, data);
     if (!isError(resp)) {
-        dispatch(addSchema(resp.schema));
+        if (isNew) dispatch(addSchema(resp.schema));
+        else
+            dispatch(
+                updateSchema({
+                    id: selected.id,
+                    name: selected.name,
+                    schema: calculateSchema(),
+                })
+            );
+        dispatch(clearSchema(null));
         dispatch(
             addNotif({
                 variant: 'success',
@@ -162,4 +203,12 @@ export const updateField = (payload: {type: FieldProps; newValue: string; index:
 ) => {
     dispatch(schemaCreation.actions.updateField(payload));
     dispatch(schemaCreation.actions.updateSchema(calculateSchema()));
+};
+
+export const fetchSchemaDetails = (name: string): AppThunk => async (dispatch: any) => {
+    const resp = await get(`schema/get/${name}/`, dispatch);
+    if (!isError(resp)) {
+        dispatch(schemaCreation.actions.loadSchema(resp));
+        dispatch(schemaCreation.actions.updateSchema(calculateSchema()));
+    }
 };

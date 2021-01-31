@@ -3,8 +3,8 @@ import {Switch, FormControlLabel, TextField, Tooltip} from '@material-ui/core';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import {useDispatch} from 'react-redux';
 
-import {metaData} from '../../../reducers/relativeEndpoints';
-import {updateMeta} from '../../../reducers/selectedEndpoints';
+import {metaData} from '../../../../reducers/relativeEndpoints';
+import {updateMeta} from '../../../../reducers/selectedEndpoints';
 
 interface Props {
     meta_data: metaData;
