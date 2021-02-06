@@ -1,6 +1,6 @@
 import {addNotif} from './reducers/notifications';
 
-const BASE_URL = 'http://localhost:3000/api/';
+const BASE_URL = 'http://localhost:8000/api/';
 
 const createRequest = async (url: string, method: string, dispatch: any, data: any = null) => {
     let options: any = {
