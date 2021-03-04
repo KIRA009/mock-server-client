@@ -76,6 +76,9 @@ const styles = makeStyles((theme) => ({
     divider: {
         margin: '20px auto',
     },
+    actions: {
+        padding: 20,
+    },
 }));
 
 export default styles;

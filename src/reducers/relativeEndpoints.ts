@@ -7,7 +7,7 @@ import {
     HeaderField,
     toggleUpdateEndpointLoading,
     setSelectedEndpoint,
-    resetSelectedEndpoint,
+    removeSelectedEndpoint,
 } from './selectedEndpoints';
 import {addNotif} from './notifications';
 
@@ -20,6 +20,17 @@ export interface metaData {
     oldValues?: any;
 }
 
+export interface statusCode {
+    id: number;
+    status_code: number;
+    fields: Field[];
+    headers: HeaderField[];
+    meta_data: metaData;
+    isDirty?: boolean;
+    deleted?: Field[];
+    deletedHeaders?: HeaderField[];
+}
+
 export interface endpointInterface {
     endpoint: string;
     regex_endpoint: string;
@@ -28,16 +39,8 @@ export interface endpointInterface {
     id: number;
     baseEndpoint: string;
     url_params: string[];
-    status_codes: {
-        id: number;
-        status_code: number;
-        fields: Field[];
-        headers: HeaderField[];
-        meta_data: metaData;
-        isDirty?: boolean;
-        deleted?: Field[];
-        deletedHeaders?: HeaderField[];
-    }[];
+    status_codes: statusCode[];
+    active_status_code: number;
     isUpdating?: boolean;
 }
 
@@ -171,6 +174,7 @@ export const addRelativeEndpoint = (payload: endpointInterface): AppThunk => asy
                 baseEndpointId,
                 endpoint: {
                     ...payload,
+                    status_codes: resp.status_codes,
                     id: resp.id,
                     regex_endpoint: resp.regex_endpoint,
                     url_params: resp.url_params,
@@ -215,7 +219,7 @@ export const deleteRelativeEndpoint = (payload: {baseEndpointId: number; id: num
     });
     if (!isError(resp)) {
         dispatch(relativeEndpoints.actions.deleteEndpoint(payload));
-        dispatch(resetSelectedEndpoint(null));
+        dispatch(removeSelectedEndpoint(payload.id));
         dispatch(
             addNotif({
                 variant: 'success',

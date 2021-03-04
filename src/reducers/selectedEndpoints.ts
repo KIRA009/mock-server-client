@@ -1,6 +1,6 @@
 import {createSlice} from '@reduxjs/toolkit';
 
-import {endpointInterface} from './relativeEndpoints';
+import {endpointInterface, statusCode} from './relativeEndpoints';
 import {RootState, AppThunk} from '../store';
 import {store} from '../index';
 import {post, isError} from '../requests';
@@ -32,7 +32,7 @@ interface toggleUpdateLoadingPayload {
 
 interface initialState {
     selected: number;
-    selectedIndex: number;
+    selectedStatusCode: number;
     endpoints: endpointInterface[];
     schema: string;
 }
@@ -100,6 +100,16 @@ interface metaDataPayload {
     };
 }
 
+interface emptyPayload {
+    type: string;
+    payload: null;
+}
+
+interface newStatusCodePayload {
+    type: string;
+    payload: statusCode;
+}
+
 const matchField = (field1: Field, field2: Field): boolean => {
     return field1.key === field2.key;
 };
@@ -109,10 +119,7 @@ const matchHeaderField = (field1: HeaderField, field2: HeaderField): boolean => 
 
 const calculateSchema = (): any => {
     const state: RootState = store.getState();
-    const selectedEndpointId: number = state.selectedEndpoints.selected;
-    const selectedEndpoint = state.selectedEndpoints.endpoints.find((_) => _.id === selectedEndpointId).status_codes[
-        state.selectedEndpoints.selectedIndex
-    ];
+    const selectedEndpoint = getSelected(state.selectedEndpoints);
     // const selectedIndex = state.selectedEndpoints.selectedIndex;
     const fields = selectedEndpoint.fields;
     const schema: any = {};
@@ -150,13 +157,15 @@ const calculateSchema = (): any => {
 };
 
 const getSelected = (state: initialState) =>
-    state.endpoints.find((_) => _.id === state.selected).status_codes[state.selectedIndex];
+    state.endpoints
+        .find((_) => _.id === state.selected)
+        ?.status_codes.find((_: statusCode) => _.status_code === state.selectedStatusCode);
 
 const selectedEndpoints = createSlice({
     name: 'selectedEndpoints',
     initialState: {
         selected: 0,
-        selectedIndex: 0,
+        selectedStatusCode: 0,
         endpoints: [],
         schema: '{}',
     } as initialState,
@@ -164,10 +173,16 @@ const selectedEndpoints = createSlice({
         setSelectedEndpoint: (state: initialState, action: getEndpointPayload) => {
             let selected = action.payload;
             let endpoint = state.endpoints.find((_) => _.id === selected.id);
-            const selectedIndex = state.selectedIndex;
             if (!endpoint) {
                 // if endpoint is selected for first time
                 endpoint = JSON.parse(JSON.stringify(selected));
+                let selectedIndex;
+                for (let i = 0; i < endpoint.status_codes.length; i++) {
+                    if (endpoint.status_codes[i].status_code === endpoint.active_status_code) {
+                        selectedIndex = i;
+                        break;
+                    }
+                }
                 endpoint.status_codes[selectedIndex].meta_data.oldValues = {};
                 endpoint.status_codes[selectedIndex].isDirty = false;
                 endpoint.status_codes[selectedIndex].deleted = [];
@@ -177,8 +192,47 @@ const selectedEndpoints = createSlice({
                 endpoint.method = action.payload.method;
                 endpoint.endpoint = action.payload.endpoint;
             }
+            state.selectedStatusCode = endpoint.active_status_code;
             if (state.selected === selected.id) return;
             state.selected = selected.id;
+        },
+        addStatusCode: (state: initialState, action: newStatusCodePayload) => {
+            state.selectedStatusCode = action.payload.status_code;
+            let endpoint = state.endpoints.find((_: endpointInterface) => _.id === state.selected);
+            endpoint.active_status_code = state.selectedStatusCode;
+            endpoint.status_codes.push({
+                ...action.payload,
+                meta_data: {
+                    ...action.payload.meta_data,
+                    oldValues: {},
+                },
+                isDirty: false,
+                deleted: [],
+                deletedHeaders: [],
+            });
+        },
+        setStatusCode: (state: initialState, action: deleteHeaderFieldPayload) => {
+            state.selectedStatusCode = action.payload;
+            state.endpoints.find((_: endpointInterface) => _.id === state.selected).active_status_code = action.payload;
+            const selected = getSelected(state);
+            if (!selected.deleted) {
+                selected.meta_data.oldValues = {};
+                selected.isDirty = false;
+                selected.deleted = [];
+                selected.deletedHeaders = [];
+            }
+        },
+        changeStatusCode: (state: initialState, action: deleteHeaderFieldPayload) => {
+            const status = getSelected(state);
+            state.endpoints.find((_: endpointInterface) => _.id === state.selected).active_status_code = action.payload;
+            status.status_code = action.payload;
+            state.selectedStatusCode = action.payload;
+        },
+        deleteStatusCode: (state: initialState, action: deleteHeaderFieldPayload) => {
+            state.endpoints.find((_: endpointInterface) => _.id === state.selected).status_codes = state.endpoints
+                .find((_: endpointInterface) => _.id === state.selected)
+                .status_codes.filter((_: statusCode) => _.status_code !== state.selectedStatusCode);
+            state.selectedStatusCode = action.payload;
         },
         updateField: (state: initialState, action: updateFieldPayload) => {
             const {index, type, newValue} = action.payload;
@@ -267,7 +321,12 @@ const selectedEndpoints = createSlice({
             const selected = state.endpoints.find((_) => _.id === state.selected);
             selected.isUpdating = action.payload;
         },
-        discardChanges: (state: initialState, action) => {
+        removeSelectedEndpoint: (state: initialState, action: deleteHeaderFieldPayload) => {
+            const id: number = action.payload;
+            if (state.selected === id) state.selected = 0;
+            state.endpoints = state.endpoints.filter((_: endpointInterface) => _.id !== id);
+        },
+        discardChanges: (state: initialState, action: emptyPayload) => {
             const selected = getSelected(state);
 
             selected.fields = selected.fields.filter((_) => _.id > 0);
@@ -315,19 +374,16 @@ const selectedEndpoints = createSlice({
 
             selected.isDirty = false;
         },
-        saveChanges: (state: initialState, action) => {
+        saveChanges: (state: initialState, action: emptyPayload) => {
             const selected = getSelected(state);
             selected.meta_data.oldValues = {};
-        },
-        resetSelectedEndpoint: (state: initialState, action) => {
-            state.selected = 0;
         },
     },
 });
 
 export default selectedEndpoints.reducer;
 
-export const {toggleUpdateEndpointLoading, resetSelectedEndpoint} = selectedEndpoints.actions;
+export const {toggleUpdateEndpointLoading, removeSelectedEndpoint} = selectedEndpoints.actions;
 
 export const setSelectedEndpoint = (payload: endpointInterface): AppThunk => (dispatch: any) => {
     dispatch(selectedEndpoints.actions.setSelectedEndpoint(payload));
@@ -371,19 +427,34 @@ export const getSelectedEndpoint = (state: RootState) => {
     const selectedEndpoint = state.selectedEndpoints.endpoints.find((_) => _.id === state.selectedEndpoints.selected);
     return {
         selectedEndpoint,
-        selectedStatus: selectedEndpoint?.status_codes[state.selectedEndpoints.selectedIndex],
+        selectedStatus: getSelected(state.selectedEndpoints), // selectedEndpoint?.status_codes[state.selectedEndpoints.selectedIndex],
         schema: state.selectedEndpoints.schema,
     };
 };
 
-export const save = (): AppThunk => async (dispatch) => {
+export const save = (): AppThunk => async (dispatch: any) => {
     const state: RootState = store.getState();
     const selected = getSelected(state.selectedEndpoints);
+    console.log(selected);
+
     const {oldValues, ...meta_data} = selected.meta_data;
+    const fields = selected.fields.map((field) => {
+        let temp = {...field};
+        delete temp['oldValues'];
+        return temp;
+    });
+
+    const headers = selected.headers.map((header) => {
+        let temp = {...header};
+        delete temp['oldValues'];
+        delete temp['isNew'];
+        delete temp['isChanged'];
+        return temp;
+    });
     const resp = await post('relative-endpoint/schema/update/', dispatch, {
-        fields: selected.fields,
-        headers: selected.headers,
-        id: selected.id,
+        fields,
+        headers,
+        id: state.selectedEndpoints.selected,
         meta_data,
     });
     if (!isError(resp)) {
@@ -399,7 +470,78 @@ export const save = (): AppThunk => async (dispatch) => {
     }
 };
 
-export const updateMeta = (payload: {key: string; value: number | boolean}): AppThunk => async (dispatch) => {
+export const addStatusCode = (payload: {status_code: number; cb: any}): AppThunk => async (dispatch: any) => {
+    const state: RootState = store.getState();
+    const {status_code, cb} = payload;
+    const resp = await post('relative-endpoint/status_code/add/', dispatch, {
+        status_code: String(status_code),
+        id: state.selectedEndpoints.selected,
+    });
+    if (!isError(resp)) {
+        dispatch(selectedEndpoints.actions.addStatusCode(resp.new_status_code));
+        dispatch(
+            addNotif({
+                variant: 'success',
+                text: 'Status code succesfully added',
+            })
+        );
+        dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
+        cb();
+    }
+};
+
+export const setStatusCode = (payload: number): AppThunk => async (dispatch: any) => {
+    const state: RootState = store.getState();
+    const resp = await post('relative-endpoint/status_code/set/', dispatch, {
+        status_code: String(payload),
+        id: state.selectedEndpoints.selected,
+    });
+    if (!isError(resp)) {
+        dispatch(selectedEndpoints.actions.setStatusCode(payload));
+        dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
+    }
+};
+
+export const changeStatusCode = (payload: {status_code: number; cb: any}): AppThunk => async (dispatch: any) => {
+    const state: RootState = store.getState();
+    const {status_code, cb} = payload;
+    const resp = await post('relative-endpoint/status_code/update/', dispatch, {
+        status_code: status_code,
+        id: state.selectedEndpoints.selected,
+    });
+    if (!isError(resp)) {
+        dispatch(selectedEndpoints.actions.changeStatusCode(Number(payload.status_code)));
+        cb();
+        dispatch(
+            addNotif({
+                variant: 'success',
+                text: 'Status code succesfully changed',
+            })
+        );
+    }
+};
+
+export const deleteStatusCode = (payload: {status_code: number; cb: any}): AppThunk => async (dispatch: any) => {
+    const state: RootState = store.getState();
+    const {status_code, cb} = payload;
+    const resp = await post('relative-endpoint/status_code/delete/', dispatch, {
+        status_code: String(status_code),
+        id: state.selectedEndpoints.selected,
+    });
+    if (!isError(resp)) {
+        dispatch(selectedEndpoints.actions.deleteStatusCode(Number(resp.new_status_code)));
+        dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
+        dispatch(
+            addNotif({
+                variant: 'success',
+                text: 'Status code succesfully deleted',
+            })
+        );
+    }
+    cb();
+};
+
+export const updateMeta = (payload: {key: string; value: number | boolean}): AppThunk => async (dispatch: any) => {
     const {key, value} = payload;
     dispatch(
         selectedEndpoints.actions.updateMeta({

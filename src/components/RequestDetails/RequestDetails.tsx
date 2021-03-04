@@ -92,7 +92,6 @@ export const RequestDetails = () => {
             <StatusCode
                 classes={classes}
                 selectedStatusCode={selectedStatus.status_code}
-                handleChange={handleChange}
                 selectedEndpoint={selectedEndpoint}
             />
             <Headers classes={classes} fields={selectedEndpoint.status_codes[0].headers} />

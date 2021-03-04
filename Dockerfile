@@ -3,7 +3,9 @@ WORKDIR /app
 
 RUN apk update
 
+COPY package.json .
+RUN yarn
+
 COPY . .
 
-RUN chmod -R u+rwx ./init.sh
-CMD [ "./init.sh" ]
+CMD [ "yarn", "start" ]

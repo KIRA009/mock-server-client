@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useRef} from 'react';
 import {
     Box,
     Typography,
@@ -18,29 +18,41 @@ import SaveIcon from '@material-ui/icons/Save';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import CancelIcon from '@material-ui/icons/Cancel';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+import {useDispatch} from 'react-redux';
 
 import {endpointInterface} from '../../../reducers/relativeEndpoints';
+import {changeStatusCode, setStatusCode, deleteStatusCode, addStatusCode} from '../../../reducers/selectedEndpoints';
 
 interface Props {
     classes: {
         [key: string]: string;
     };
     selectedStatusCode: number;
-    handleChange: any;
     selectedEndpoint: endpointInterface;
 }
 
-export const StatusCode = ({classes, selectedStatusCode, handleChange, selectedEndpoint}: Props) => {
+export const StatusCode = ({classes, selectedStatusCode, selectedEndpoint}: Props) => {
     const [openDelete, setOpenDelete] = useState(false);
+    const [openAdd, setOpenAdd] = useState(false);
     const [edit, setEdit] = useState(false);
+    const dispatch = useDispatch();
+    const newStatusCode = useRef(null);
     const toggleOpenDelete = () => setOpenDelete(!openDelete);
+    const toggleOpenAdd = () => setOpenAdd(!openAdd);
     const toggleEdit = () => setEdit(!edit);
+    const handleChange = (e: any) => {
+        dispatch(setStatusCode(e.target.value));
+    };
+    const del = () => {
+        dispatch(deleteStatusCode({status_code: selectedStatusCode, cb: toggleOpenDelete}));
+    };
     const save = () => {
         if (!edit) return;
-        /**
-         * TODO: Make an action to save the new status code
-         */
-        toggleEdit();
+        dispatch(changeStatusCode({status_code: newStatusCode.current.value, cb: toggleEdit}));
+    };
+    const add = () => {
+        dispatch(addStatusCode({status_code: newStatusCode.current.value, cb: toggleOpenAdd}));
     };
     return (
         <Box display="flex" justifyContent="space-around" alignItems="center" className={classes.divider}>
@@ -51,7 +63,7 @@ export const StatusCode = ({classes, selectedStatusCode, handleChange, selectedE
             </Typography>
             {edit ? (
                 <>
-                    <TextField variant="outlined" defaultValue={selectedStatusCode} />
+                    <TextField inputRef={newStatusCode} variant="outlined" defaultValue={selectedStatusCode} />
                     <IconButton color="primary" onClick={toggleEdit}>
                         <CancelIcon />
                     </IconButton>
@@ -71,16 +83,19 @@ export const StatusCode = ({classes, selectedStatusCode, handleChange, selectedE
                             ))}
                         </Select>
                     </FormControl>
-                    <IconButton color="primary" onClick={toggleEdit}>
+                    <IconButton disabled={edit} color="primary" onClick={toggleEdit}>
                         <EditIcon />
                     </IconButton>
                 </>
             )}
-            <IconButton color="primary" onClick={save}>
+            <IconButton color="primary" disabled={!edit} onClick={save}>
                 <SaveIcon />
             </IconButton>
             <IconButton color="secondary" onClick={toggleOpenDelete}>
                 <DeleteIcon />
+            </IconButton>
+            <IconButton color="primary" disabled={edit} onClick={toggleOpenAdd}>
+                <AddCircleIcon />
             </IconButton>
             {openDelete && (
                 <Dialog
@@ -88,19 +103,36 @@ export const StatusCode = ({classes, selectedStatusCode, handleChange, selectedE
                     onClose={toggleOpenDelete}
                     aria-labelledby="alert-dialog-title"
                     aria-describedby="alert-dialog-description">
-                    <DialogTitle id="alert-dialog-title">{'Are you sure?'}</DialogTitle>
+                    <DialogTitle id="alert-dialog-title">Are you sure?</DialogTitle>
                     <DialogContent>
                         <DialogContentText id="alert-dialog-description">
                             Deleting this means deleting the response alongwith it, which cannot be recovered by any
                             means
                         </DialogContentText>
                     </DialogContent>
-                    <DialogActions>
+                    <DialogActions className={classes.actions}>
                         <Button onClick={toggleOpenDelete} color="primary" variant="contained">
                             No, don't delete
                         </Button>
-                        <Button onClick={toggleOpenDelete} color="secondary" autoFocus variant="contained">
+                        <Button onClick={del} color="secondary" autoFocus variant="contained">
                             Yes, go ahead
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            )}
+            {openAdd && (
+                <Dialog
+                    open={openAdd}
+                    onClose={toggleOpenAdd}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description">
+                    <DialogTitle id="alert-dialog-title">Enter new status code</DialogTitle>
+                    <DialogContent>
+                        <TextField inputRef={newStatusCode} variant="outlined" />
+                    </DialogContent>
+                    <DialogActions className={classes.actions}>
+                        <Button onClick={add} color="secondary" autoFocus variant="contained">
+                            Add
                         </Button>
                     </DialogActions>
                 </Dialog>

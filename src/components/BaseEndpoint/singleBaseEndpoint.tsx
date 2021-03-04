@@ -80,6 +80,7 @@ export const SingleBaseEndpoint = ({endpoint, classes, endpointId}: Props) => {
                 baseEndpoint: endpoint,
                 regex_endpoint: '',
                 url_params: [],
+                active_status_code: 200,
             })
         );
     };
