@@ -1,21 +1,22 @@
 import React from 'react';
 import {Provider} from 'react-redux';
-import {ConnectedRouter} from 'connected-react-router';
-import {History} from 'history';
 import {Store} from '../store';
-import Routes from '../routes/index';
+import {SnackbarProvider, withSnackbar} from 'notistack';
+import {HomePage} from '../containers/HomePage';
+import {Notification} from '../components/Notification';
 
 type Props = {
     store: Store;
-    history: History;
 };
 
-const Root = ({store, history}: Props) => {
+const Root = ({store}: Props) => {
+    const WithNotifPage = withSnackbar(HomePage);
     return (
         <Provider store={store}>
-            <ConnectedRouter history={history}>
-                <Routes />
-            </ConnectedRouter>
+            <SnackbarProvider>
+                <WithNotifPage />
+                <Notification />
+            </SnackbarProvider>
         </Provider>
     );
 };

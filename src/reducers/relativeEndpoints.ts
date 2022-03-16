@@ -145,101 +145,110 @@ export const {initiateRelativeEndpoints, startAddEndpointLoading, endAddEndpoint
 
 export default relativeEndpoints.reducer;
 
-export const fillRelativeEndpoints = (baseEndpointId: number): AppThunk => async (dispatch: any) => {
-    dispatch(relativeEndpoints.actions.startInitialLoading(baseEndpointId));
-    let resp = await get(`relative-endpoints/get/${baseEndpointId}/`, dispatch);
-    if (!isError(resp)) {
-        dispatch(
-            initiateRelativeEndpoints({
-                baseEndpointId,
-                endpoints: resp.relativeEndpoints,
-            })
-        );
-        dispatch(relativeEndpoints.actions.endInitialLoading(baseEndpointId));
-    }
-};
-
-export const addRelativeEndpoint = (payload: endpointInterface): AppThunk => async (dispatch: any) => {
-    const baseEndpointId: number = payload.base_endpoint;
-    dispatch(startAddEndpointLoading(baseEndpointId));
-    delete payload['id'];
-    const resp = await post(`relative-endpoints/add/`, dispatch, {
-        id: baseEndpointId,
-        endpoint: payload.endpoint,
-        method: payload.method,
-    });
-    if (!isError(resp)) {
-        dispatch(
-            relativeEndpoints.actions.addRelativeEndpoint({
-                baseEndpointId,
-                endpoint: {
-                    ...payload,
-                    status_codes: resp.status_codes,
-                    id: resp.id,
-                    regex_endpoint: resp.regex_endpoint,
-                    url_params: resp.url_params,
-                    endpoint: resp.endpoint,
-                },
-            })
-        );
-        dispatch(endAddEndpointLoading(baseEndpointId));
-    }
-};
-
-export const updateRelativeEndpoint = (payload: endpointInterface): AppThunk => async (dispatch: any) => {
-    const {id, endpoint, method} = payload;
-    dispatch(toggleUpdateEndpointLoading(true));
-    const resp = await post(`relative-endpoint/update/`, dispatch, {
-        id,
-        endpoint,
-        method,
-    });
-    if (!isError(resp)) {
-        dispatch(
-            relativeEndpoints.actions.updateRelativeEndpoint({
-                ...payload,
-            })
-        );
-        dispatch(setSelectedEndpoint(payload));
-        dispatch(
-            addNotif({
-                variant: 'success',
-                text: 'Endpoint details updated',
-            })
-        );
-    }
-    dispatch(toggleUpdateEndpointLoading(false));
-};
-
-export const deleteRelativeEndpoint = (payload: {baseEndpointId: number; id: number}): AppThunk => async (
-    dispatch: any
-) => {
-    const resp = await post(`relative-endpoint/delete/`, dispatch, {
-        id: payload.id,
-    });
-    if (!isError(resp)) {
-        dispatch(relativeEndpoints.actions.deleteEndpoint(payload));
-        dispatch(removeSelectedEndpoint(payload.id));
-        dispatch(
-            addNotif({
-                variant: 'success',
-                text: 'Endpoint succesfully deleted',
-            })
-        );
-    }
-};
-
-export const getRelativeEndPoints = (baseEndpointId: number) => (
-    state: RootState
-): {
-    endpoints: endpointInterface[];
-    loading: boolean;
-    addEndpointLoading: boolean;
-} => {
-    if (baseEndpointId in state.relativeEndpoints.endpoints) return state.relativeEndpoints.endpoints[baseEndpointId];
-    return {
-        endpoints: [],
-        loading: false,
-        addEndpointLoading: false,
+export const fillRelativeEndpoints =
+    (baseEndpointId: number): AppThunk =>
+    async (dispatch: any) => {
+        dispatch(relativeEndpoints.actions.startInitialLoading(baseEndpointId));
+        let resp = await get(`relative-endpoints/get/${baseEndpointId}/`, dispatch);
+        if (!isError(resp)) {
+            dispatch(
+                initiateRelativeEndpoints({
+                    baseEndpointId,
+                    endpoints: resp.relativeEndpoints,
+                })
+            );
+            dispatch(relativeEndpoints.actions.endInitialLoading(baseEndpointId));
+        }
     };
-};
+
+export const addRelativeEndpoint =
+    (payload: endpointInterface): AppThunk =>
+    async (dispatch: any) => {
+        const baseEndpointId: number = payload.base_endpoint;
+        dispatch(startAddEndpointLoading(baseEndpointId));
+        delete payload['id'];
+        const resp = await post(`relative-endpoints/add/`, dispatch, {
+            id: baseEndpointId,
+            endpoint: payload.endpoint,
+            method: payload.method,
+        });
+        if (!isError(resp)) {
+            dispatch(
+                relativeEndpoints.actions.addRelativeEndpoint({
+                    baseEndpointId,
+                    endpoint: {
+                        ...payload,
+                        status_codes: resp.status_codes,
+                        id: resp.id,
+                        regex_endpoint: resp.regex_endpoint,
+                        url_params: resp.url_params,
+                        endpoint: resp.endpoint,
+                    },
+                })
+            );
+            dispatch(endAddEndpointLoading(baseEndpointId));
+        }
+    };
+
+export const updateRelativeEndpoint =
+    (payload: endpointInterface): AppThunk =>
+    async (dispatch: any) => {
+        const {id, endpoint, method} = payload;
+        dispatch(toggleUpdateEndpointLoading(true));
+        const resp = await post(`relative-endpoint/update/`, dispatch, {
+            id,
+            endpoint,
+            method,
+        });
+        if (!isError(resp)) {
+            dispatch(
+                relativeEndpoints.actions.updateRelativeEndpoint({
+                    ...payload,
+                })
+            );
+            dispatch(setSelectedEndpoint(payload));
+            dispatch(
+                addNotif({
+                    variant: 'success',
+                    text: 'Endpoint details updated',
+                })
+            );
+        }
+        dispatch(toggleUpdateEndpointLoading(false));
+    };
+
+export const deleteRelativeEndpoint =
+    (payload: {baseEndpointId: number; id: number}): AppThunk =>
+    async (dispatch: any) => {
+        const resp = await post(`relative-endpoint/delete/`, dispatch, {
+            id: payload.id,
+        });
+        if (!isError(resp)) {
+            dispatch(relativeEndpoints.actions.deleteEndpoint(payload));
+            dispatch(removeSelectedEndpoint(payload.id));
+            dispatch(
+                addNotif({
+                    variant: 'success',
+                    text: 'Endpoint succesfully deleted',
+                })
+            );
+        }
+    };
+
+export const getRelativeEndPoints =
+    (baseEndpointId: number) =>
+    (
+        state: RootState
+    ): {
+        endpoints: endpointInterface[];
+        loading: boolean;
+        addEndpointLoading: boolean;
+    } => {
+        if (baseEndpointId in state.relativeEndpoints.endpoints)
+            return state.relativeEndpoints.endpoints[baseEndpointId];
+        return {
+            endpoints: [],
+            loading: false,
+            addEndpointLoading: false,
+        };
+    };

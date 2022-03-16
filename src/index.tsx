@@ -3,13 +3,13 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import Root from './containers/Root';
 import * as serviceWorker from './serviceWorker';
-import {configuredStore, history} from './store';
+import {configuredStore} from './store';
 
 export const store = configuredStore();
 
 ReactDOM.render(
     <React.StrictMode>
-        <Root store={store} history={history} />
+        <Root store={store} />
     </React.StrictMode>,
     document.getElementById('root')
 );

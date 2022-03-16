@@ -83,7 +83,8 @@ export const Headers = ({classes, fields}: Props) => {
                                 aria-label=""
                                 color="primary"
                                 className={classes.addFieldIcon}
-                                onClick={() => del(ind)}>
+                                onClick={() => del(ind)}
+                            >
                                 <DeleteIcon />
                             </IconButton>
                         </ListItem>

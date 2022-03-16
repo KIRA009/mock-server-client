@@ -140,20 +140,26 @@ export const {clearSchema} = schemaCreation.actions;
 
 export default schemaCreation.reducer;
 
-export const changeName = (payload: string): AppThunk => (dispatch: any) => {
-    dispatch(schemaCreation.actions.changeName(payload));
-    dispatch(schemaCreation.actions.updateSchema(calculateSchema()));
-};
+export const changeName =
+    (payload: string): AppThunk =>
+    (dispatch: any) => {
+        dispatch(schemaCreation.actions.changeName(payload));
+        dispatch(schemaCreation.actions.updateSchema(calculateSchema()));
+    };
 
-export const addField = (payload: Field): AppThunk => (dispatch: any) => {
-    dispatch(schemaCreation.actions.addField(payload));
-    dispatch(schemaCreation.actions.updateSchema(calculateSchema()));
-};
+export const addField =
+    (payload: Field): AppThunk =>
+    (dispatch: any) => {
+        dispatch(schemaCreation.actions.addField(payload));
+        dispatch(schemaCreation.actions.updateSchema(calculateSchema()));
+    };
 
-export const deleteField = (payload: number): AppThunk => (dispatch: any) => {
-    dispatch(schemaCreation.actions.deleteField(payload));
-    dispatch(schemaCreation.actions.updateSchema(calculateSchema()));
-};
+export const deleteField =
+    (payload: number): AppThunk =>
+    (dispatch: any) => {
+        dispatch(schemaCreation.actions.deleteField(payload));
+        dispatch(schemaCreation.actions.updateSchema(calculateSchema()));
+    };
 
 export const getSelectedSchema = (state: RootState) => ({
     selectedSchema: state.schemaCreation.schema,
@@ -198,17 +204,19 @@ export const save = (): AppThunk => async (dispatch) => {
     }
 };
 
-export const updateField = (payload: {type: FieldProps; newValue: string; index: number}): AppThunk => (
-    dispatch: any
-) => {
-    dispatch(schemaCreation.actions.updateField(payload));
-    dispatch(schemaCreation.actions.updateSchema(calculateSchema()));
-};
-
-export const fetchSchemaDetails = (name: string): AppThunk => async (dispatch: any) => {
-    const resp = await get(`schema/get/${name}/`, dispatch);
-    if (!isError(resp)) {
-        dispatch(schemaCreation.actions.loadSchema(resp));
+export const updateField =
+    (payload: {type: FieldProps; newValue: string; index: number}): AppThunk =>
+    (dispatch: any) => {
+        dispatch(schemaCreation.actions.updateField(payload));
         dispatch(schemaCreation.actions.updateSchema(calculateSchema()));
-    }
-};
+    };
+
+export const fetchSchemaDetails =
+    (name: string): AppThunk =>
+    async (dispatch: any) => {
+        const resp = await get(`schema/get/${name}/`, dispatch);
+        if (!isError(resp)) {
+            dispatch(schemaCreation.actions.loadSchema(resp));
+            dispatch(schemaCreation.actions.updateSchema(calculateSchema()));
+        }
+    };

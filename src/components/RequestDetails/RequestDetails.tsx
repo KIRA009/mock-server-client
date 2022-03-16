@@ -82,7 +82,8 @@ export const RequestDetails = () => {
                 <IconButton
                     className={classes.saveIcon}
                     disabled={selectedEndpoint.isUpdating}
-                    onClick={_updateRelativeEndpoint}>
+                    onClick={_updateRelativeEndpoint}
+                >
                     <SaveIcon />
                 </IconButton>
                 <IconButton onClick={_deleteRelativeEndpoint}>
@@ -109,7 +110,8 @@ export const RequestDetails = () => {
                     disabled={!selectedStatus.isDirty}
                     variant="contained"
                     color="secondary"
-                    onClick={discardChanges}>
+                    onClick={discardChanges}
+                >
                     Discard
                 </Button>
             </div>

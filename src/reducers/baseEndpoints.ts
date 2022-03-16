@@ -56,13 +56,8 @@ const baseEndpoints = createSlice({
     },
 });
 
-export const {
-    initiateBaseEndPoints,
-    startLoading,
-    endLoading,
-    startAddEndpointLoading,
-    endAddEndpointLoading,
-} = baseEndpoints.actions;
+export const {initiateBaseEndPoints, startLoading, endLoading, startAddEndpointLoading, endAddEndpointLoading} =
+    baseEndpoints.actions;
 
 export default baseEndpoints.reducer;
 
@@ -75,20 +70,22 @@ export const fillBaseEndpoints = (): AppThunk => async (dispatch: any) => {
     }
 };
 
-export const addBaseEndpoint = (payload: string): AppThunk => async (dispatch: any) => {
-    dispatch(baseEndpoints.actions.startAddEndpointLoading(null));
-    const resp = await post('base-endpoint/add/', dispatch, {
-        endpoint: payload,
-    });
-    if (!('error' in resp)) {
-        dispatch(
-            baseEndpoints.actions._addBaseEndpoint({
-                endpoint: payload,
-                id: resp.id,
-            })
-        );
-        dispatch(endAddEndpointLoading(null));
-    }
-};
+export const addBaseEndpoint =
+    (payload: string): AppThunk =>
+    async (dispatch: any) => {
+        dispatch(baseEndpoints.actions.startAddEndpointLoading(null));
+        const resp = await post('base-endpoint/add/', dispatch, {
+            endpoint: payload,
+        });
+        if (!('error' in resp)) {
+            dispatch(
+                baseEndpoints.actions._addBaseEndpoint({
+                    endpoint: payload,
+                    id: resp.id,
+                })
+            );
+            dispatch(endAddEndpointLoading(null));
+        }
+    };
 
 export const getBaseEndPoints = (state: RootState): initialState => state.baseEndpoints;

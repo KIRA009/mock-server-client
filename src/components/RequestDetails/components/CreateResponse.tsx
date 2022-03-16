@@ -90,7 +90,8 @@ export const CreateResponse = React.memo(({classes, fields, url_params}: Props) 
                                     labelId={`field-type-${ind}`}
                                     id={`field-type-select-${ind}`}
                                     value={type}
-                                    onChange={(e) => update(e.target.value, 'type', ind)}>
+                                    onChange={(e) => update(e.target.value, 'type', ind)}
+                                >
                                     <MenuItem value={'value'}>Value</MenuItem>
                                     <MenuItem value={'schema'}>Schema</MenuItem>
                                     <MenuItem value={'url_param'}>Url Param</MenuItem>
@@ -111,7 +112,8 @@ export const CreateResponse = React.memo(({classes, fields, url_params}: Props) 
                                 aria-label=""
                                 color="primary"
                                 className={classes.addFieldIcon}
-                                onClick={() => del(ind)}>
+                                onClick={() => del(ind)}
+                            >
                                 <DeleteIcon />
                             </IconButton>
                         </ListItem>

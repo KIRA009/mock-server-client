@@ -58,7 +58,8 @@ export const MetaData = ({meta_data, classes}: Props) => {
                 />
                 <Tooltip
                     title={<span>You need to have a 'pageNo' query parameter to access other pages</span>}
-                    classes={{tooltip: classes.toolTip}}>
+                    classes={{tooltip: classes.toolTip}}
+                >
                     <HelpOutlineIcon />
                 </Tooltip>
             </div>

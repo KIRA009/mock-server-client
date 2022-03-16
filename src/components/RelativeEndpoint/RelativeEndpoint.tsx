@@ -43,7 +43,8 @@ export const RelativeEndpoint = ({endpoints, loading, baseEndpoint}: Props) => {
                                     ? ` ${classes.selected}`
                                     : ''
                                 : ''
-                        }`}>
+                        }`}
+                    >
                         <Grid item xs={3} className={`method-${_endpoint.method}`}>
                             {_endpoint.method}
                         </Grid>

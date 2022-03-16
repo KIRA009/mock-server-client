@@ -385,38 +385,48 @@ export default selectedEndpoints.reducer;
 
 export const {toggleUpdateEndpointLoading, removeSelectedEndpoint} = selectedEndpoints.actions;
 
-export const setSelectedEndpoint = (payload: endpointInterface): AppThunk => (dispatch: any) => {
-    dispatch(selectedEndpoints.actions.setSelectedEndpoint(payload));
-    dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
-};
+export const setSelectedEndpoint =
+    (payload: endpointInterface): AppThunk =>
+    (dispatch: any) => {
+        dispatch(selectedEndpoints.actions.setSelectedEndpoint(payload));
+        dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
+    };
 
-export const addField = (payload: Field): AppThunk => (dispatch: any) => {
-    dispatch(selectedEndpoints.actions.addField(payload));
-    dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
-};
-export const addHeaderField = (payload: HeaderField): AppThunk => (dispatch: any) => {
-    dispatch(selectedEndpoints.actions.addHeaderField(payload));
-};
+export const addField =
+    (payload: Field): AppThunk =>
+    (dispatch: any) => {
+        dispatch(selectedEndpoints.actions.addField(payload));
+        dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
+    };
+export const addHeaderField =
+    (payload: HeaderField): AppThunk =>
+    (dispatch: any) => {
+        dispatch(selectedEndpoints.actions.addHeaderField(payload));
+    };
 
-export const updateField = (payload: {type: FieldProps; newValue: string; index: number}): AppThunk => (
-    dispatch: any
-) => {
-    dispatch(selectedEndpoints.actions.updateField(payload));
-    dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
-};
-export const updateHeaderField = (payload: {type: HeaderFieldProps; newValue: string; index: number}): AppThunk => (
-    dispatch: any
-) => {
-    dispatch(selectedEndpoints.actions.updateHeaderField(payload));
-};
+export const updateField =
+    (payload: {type: FieldProps; newValue: string; index: number}): AppThunk =>
+    (dispatch: any) => {
+        dispatch(selectedEndpoints.actions.updateField(payload));
+        dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
+    };
+export const updateHeaderField =
+    (payload: {type: HeaderFieldProps; newValue: string; index: number}): AppThunk =>
+    (dispatch: any) => {
+        dispatch(selectedEndpoints.actions.updateHeaderField(payload));
+    };
 
-export const deleteField = (payload: number): AppThunk => (dispatch: any) => {
-    dispatch(selectedEndpoints.actions.deleteField(payload));
-    dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
-};
-export const deleteHeaderField = (payload: number): AppThunk => (dispatch: any) => {
-    dispatch(selectedEndpoints.actions.deleteHeaderField(payload));
-};
+export const deleteField =
+    (payload: number): AppThunk =>
+    (dispatch: any) => {
+        dispatch(selectedEndpoints.actions.deleteField(payload));
+        dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
+    };
+export const deleteHeaderField =
+    (payload: number): AppThunk =>
+    (dispatch: any) => {
+        dispatch(selectedEndpoints.actions.deleteHeaderField(payload));
+    };
 
 export const discard = (dispatch: any) => {
     dispatch(selectedEndpoints.actions.discardChanges(null));
@@ -470,84 +480,94 @@ export const save = (): AppThunk => async (dispatch: any) => {
     }
 };
 
-export const addStatusCode = (payload: {status_code: number; cb: any}): AppThunk => async (dispatch: any) => {
-    const state: RootState = store.getState();
-    const {status_code, cb} = payload;
-    const resp = await post('relative-endpoint/status_code/add/', dispatch, {
-        status_code: String(status_code),
-        id: state.selectedEndpoints.selected,
-    });
-    if (!isError(resp)) {
-        dispatch(selectedEndpoints.actions.addStatusCode(resp.new_status_code));
-        dispatch(
-            addNotif({
-                variant: 'success',
-                text: 'Status code succesfully added',
-            })
-        );
-        dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
+export const addStatusCode =
+    (payload: {status_code: number; cb: any}): AppThunk =>
+    async (dispatch: any) => {
+        const state: RootState = store.getState();
+        const {status_code, cb} = payload;
+        const resp = await post('relative-endpoint/status_code/add/', dispatch, {
+            status_code: String(status_code),
+            id: state.selectedEndpoints.selected,
+        });
+        if (!isError(resp)) {
+            dispatch(selectedEndpoints.actions.addStatusCode(resp.new_status_code));
+            dispatch(
+                addNotif({
+                    variant: 'success',
+                    text: 'Status code succesfully added',
+                })
+            );
+            dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
+            cb();
+        }
+    };
+
+export const setStatusCode =
+    (payload: number): AppThunk =>
+    async (dispatch: any) => {
+        const state: RootState = store.getState();
+        const resp = await post('relative-endpoint/status_code/set/', dispatch, {
+            status_code: String(payload),
+            id: state.selectedEndpoints.selected,
+        });
+        if (!isError(resp)) {
+            dispatch(selectedEndpoints.actions.setStatusCode(payload));
+            dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
+        }
+    };
+
+export const changeStatusCode =
+    (payload: {status_code: number; cb: any}): AppThunk =>
+    async (dispatch: any) => {
+        const state: RootState = store.getState();
+        const {status_code, cb} = payload;
+        const resp = await post('relative-endpoint/status_code/update/', dispatch, {
+            status_code: status_code,
+            id: state.selectedEndpoints.selected,
+        });
+        if (!isError(resp)) {
+            dispatch(selectedEndpoints.actions.changeStatusCode(Number(payload.status_code)));
+            cb();
+            dispatch(
+                addNotif({
+                    variant: 'success',
+                    text: 'Status code succesfully changed',
+                })
+            );
+        }
+    };
+
+export const deleteStatusCode =
+    (payload: {status_code: number; cb: any}): AppThunk =>
+    async (dispatch: any) => {
+        const state: RootState = store.getState();
+        const {status_code, cb} = payload;
+        const resp = await post('relative-endpoint/status_code/delete/', dispatch, {
+            status_code: String(status_code),
+            id: state.selectedEndpoints.selected,
+        });
+        if (!isError(resp)) {
+            dispatch(selectedEndpoints.actions.deleteStatusCode(Number(resp.new_status_code)));
+            dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
+            dispatch(
+                addNotif({
+                    variant: 'success',
+                    text: 'Status code succesfully deleted',
+                })
+            );
+        }
         cb();
-    }
-};
+    };
 
-export const setStatusCode = (payload: number): AppThunk => async (dispatch: any) => {
-    const state: RootState = store.getState();
-    const resp = await post('relative-endpoint/status_code/set/', dispatch, {
-        status_code: String(payload),
-        id: state.selectedEndpoints.selected,
-    });
-    if (!isError(resp)) {
-        dispatch(selectedEndpoints.actions.setStatusCode(payload));
-        dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
-    }
-};
-
-export const changeStatusCode = (payload: {status_code: number; cb: any}): AppThunk => async (dispatch: any) => {
-    const state: RootState = store.getState();
-    const {status_code, cb} = payload;
-    const resp = await post('relative-endpoint/status_code/update/', dispatch, {
-        status_code: status_code,
-        id: state.selectedEndpoints.selected,
-    });
-    if (!isError(resp)) {
-        dispatch(selectedEndpoints.actions.changeStatusCode(Number(payload.status_code)));
-        cb();
+export const updateMeta =
+    (payload: {key: string; value: number | boolean}): AppThunk =>
+    async (dispatch: any) => {
+        const {key, value} = payload;
         dispatch(
-            addNotif({
-                variant: 'success',
-                text: 'Status code succesfully changed',
+            selectedEndpoints.actions.updateMeta({
+                key,
+                value,
             })
         );
-    }
-};
-
-export const deleteStatusCode = (payload: {status_code: number; cb: any}): AppThunk => async (dispatch: any) => {
-    const state: RootState = store.getState();
-    const {status_code, cb} = payload;
-    const resp = await post('relative-endpoint/status_code/delete/', dispatch, {
-        status_code: String(status_code),
-        id: state.selectedEndpoints.selected,
-    });
-    if (!isError(resp)) {
-        dispatch(selectedEndpoints.actions.deleteStatusCode(Number(resp.new_status_code)));
         dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
-        dispatch(
-            addNotif({
-                variant: 'success',
-                text: 'Status code succesfully deleted',
-            })
-        );
-    }
-    cb();
-};
-
-export const updateMeta = (payload: {key: string; value: number | boolean}): AppThunk => async (dispatch: any) => {
-    const {key, value} = payload;
-    dispatch(
-        selectedEndpoints.actions.updateMeta({
-            key,
-            value,
-        })
-    );
-    dispatch(selectedEndpoints.actions.updateSchema(calculateSchema()));
-};
+    };

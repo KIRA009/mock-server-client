@@ -75,7 +75,8 @@ export const StatusCode = ({classes, selectedStatusCode, selectedEndpoint}: Prop
                             labelId="endpoint-status-label"
                             id="endpoint-status"
                             value={selectedStatusCode}
-                            onChange={handleChange}>
+                            onChange={handleChange}
+                        >
                             {selectedEndpoint.status_codes.map((status_code) => (
                                 <MenuItem key={status_code.status_code} value={status_code.status_code}>
                                     {status_code.status_code}
@@ -102,7 +103,8 @@ export const StatusCode = ({classes, selectedStatusCode, selectedEndpoint}: Prop
                     open={openDelete}
                     onClose={toggleOpenDelete}
                     aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description">
+                    aria-describedby="alert-dialog-description"
+                >
                     <DialogTitle id="alert-dialog-title">Are you sure?</DialogTitle>
                     <DialogContent>
                         <DialogContentText id="alert-dialog-description">
@@ -125,7 +127,8 @@ export const StatusCode = ({classes, selectedStatusCode, selectedEndpoint}: Prop
                     open={openAdd}
                     onClose={toggleOpenAdd}
                     aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description">
+                    aria-describedby="alert-dialog-description"
+                >
                     <DialogTitle id="alert-dialog-title">Enter new status code</DialogTitle>
                     <DialogContent>
                         <TextField inputRef={newStatusCode} variant="outlined" />

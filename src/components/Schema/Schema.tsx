@@ -31,7 +31,8 @@ const TabPanel = ({value, index, children}: TabPanelProps) => {
             role="tabpanel"
             hidden={value !== index}
             id={`schema-tabpanel-${index}`}
-            aria-labelledby={`schema-tab-${index}`}>
+            aria-labelledby={`schema-tab-${index}`}
+        >
             {value === index && <Box>{children}</Box>}
         </div>
     );

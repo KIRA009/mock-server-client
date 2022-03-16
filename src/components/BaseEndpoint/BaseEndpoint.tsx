@@ -96,7 +96,8 @@ export const BaseEndpoint = () => {
                             className={classes.btn}
                             color="primary"
                             variant="contained"
-                            onClick={() => setOpen(true)}>
+                            onClick={() => setOpen(true)}
+                        >
                             Add new base endpoint
                         </Button>
                     </div>
@@ -105,7 +106,8 @@ export const BaseEndpoint = () => {
                             className={classes.btn}
                             color="primary"
                             variant="contained"
-                            onClick={() => setOpenSchema(true)}>
+                            onClick={() => setOpenSchema(true)}
+                        >
                             Schemas
                         </Button>
                     </div>
@@ -131,7 +133,8 @@ export const BaseEndpoint = () => {
                             className={classes.btn}
                             color="primary"
                             variant="contained"
-                            onClick={() => setOpenImport(true)}>
+                            onClick={() => setOpenImport(true)}
+                        >
                             Import data
                         </Button>
                     </div>
@@ -156,7 +159,8 @@ export const BaseEndpoint = () => {
                             color="primary"
                             variant="contained"
                             onClick={addNewBaseEndpoint}
-                            disabled={addBaseEndpointLoading}>
+                            disabled={addBaseEndpointLoading}
+                        >
                             Add
                         </Button>
                     </DialogContent>

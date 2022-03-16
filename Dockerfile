@@ -4,7 +4,8 @@ WORKDIR /app
 RUN apk update
 
 COPY package.json .
-RUN yarn
+COPY yarn.lock .
+RUN yarn install --ignore-engines
 
 COPY . .
 

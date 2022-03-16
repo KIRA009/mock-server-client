@@ -27,7 +27,8 @@ export const ValueField = React.memo(({type, value, update, ind, classes, url_pa
                     labelId={`field-value-${ind}`}
                     id={`field-value-select-${ind}`}
                     value={value}
-                    onChange={(e) => update(e.target.value, 'value', ind)}>
+                    onChange={(e) => update(e.target.value, 'value', ind)}
+                >
                     {type === 'schema'
                         ? schemas
                               .filter((_) => _.id !== schemaId)
@@ -35,7 +36,8 @@ export const ValueField = React.memo(({type, value, update, ind, classes, url_pa
                                   <MenuItem key={schema.name} value={schema.name}>
                                       <Tooltip
                                           title={<pre>{JSON.stringify(schema.schema, null, 4)}</pre>}
-                                          classes={{tooltip: classes.toolTip}}>
+                                          classes={{tooltip: classes.toolTip}}
+                                      >
                                           <Typography className={classes.toolTipText}>{schema.name}</Typography>
                                       </Tooltip>
                                   </MenuItem>

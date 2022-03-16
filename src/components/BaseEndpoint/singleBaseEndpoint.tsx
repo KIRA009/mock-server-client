@@ -108,7 +108,8 @@ export const SingleBaseEndpoint = ({endpoint, classes, endpointId}: Props) => {
                         expandIcon={<ExpandMoreIcon className={classes.baseEndpointIcon} />}
                         aria-controls={`${endpoint}-content`}
                         id={`${endpoint}-header`}
-                        onClick={handleExpanded}>
+                        onClick={handleExpanded}
+                    >
                         <Typography>{endpoint}</Typography>
                     </AccordionSummary>
                 </div>
@@ -133,7 +134,8 @@ export const SingleBaseEndpoint = ({endpoint, classes, endpointId}: Props) => {
                                 labelId="endpoint-method-label"
                                 id="endpoint-method"
                                 value={method}
-                                onChange={handleChange}>
+                                onChange={handleChange}
+                            >
                                 <MenuItem value="GET">GET</MenuItem>
                                 <MenuItem value="POST">POST</MenuItem>
                                 <MenuItem value="PUT">PUT</MenuItem>
@@ -146,7 +148,8 @@ export const SingleBaseEndpoint = ({endpoint, classes, endpointId}: Props) => {
                             color="primary"
                             variant="contained"
                             onClick={addEndpoint}
-                            disabled={addEndpointLoading}>
+                            disabled={addEndpointLoading}
+                        >
                             Add
                         </Button>
                     </DialogActions>
